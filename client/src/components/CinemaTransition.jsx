@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Film, Sparkles, Star, Ticket } from 'lucide-react';
 import logoMini from '/logo_mini.png';
 
@@ -84,7 +84,7 @@ export default function CinemaTransition({
   isHost,
   onComplete,
 }) {
-  // Phase: 'holding' (0 - 1000ms: stays on screen for immersion) -> 'parting' (1000ms - 1850ms) -> 'done'
+  // Phase: 'holding' (stays on screen until user clicks) -> 'parting' (~850ms) -> 'done'
   const [phase, setPhase] = useState('holding');
   const stampPlayedRef = useRef(false);
 
@@ -94,29 +94,40 @@ export default function CinemaTransition({
       stampPlayedRef.current = true;
       playStampSound();
     }
+  }, []);
 
-    // 2. Stay there for 1 full second (1000ms) for immersion, then part the curtains
-    const partingTimer = setTimeout(() => {
-      setPhase('parting');
-      playCurtainChime();
-    }, 1000);
+  const handleEnter = useCallback(() => {
+    if (phase !== 'holding') return;
+    setPhase('parting');
+    playCurtainChime();
 
-    // 3. Once curtains have fully opened (~850ms later), complete the transition
-    const completeTimer = setTimeout(() => {
+    setTimeout(() => {
       setPhase('done');
       if (onComplete) onComplete();
-    }, 1850);
+    }, 850);
+  }, [phase, onComplete]);
 
-    return () => {
-      clearTimeout(partingTimer);
-      clearTimeout(completeTimer);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        handleEnter();
+      }
     };
-  }, [onComplete]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleEnter]);
 
   const isParting = phase === 'parting' || phase === 'done';
 
   return (
-    <div className={`cinema-transition-overlay ${isParting ? 'curtains-parting' : ''}`} aria-hidden="true">
+    <div
+      className={`cinema-transition-overlay ${isParting ? 'curtains-parting' : 'waiting-enter'}`}
+      onClick={handleEnter}
+      role="button"
+      tabIndex={0}
+      aria-label="Click anywhere to enter cinema"
+    >
       {/* ── Background Projector Light Beam ── */}
       <div className="cinema-projector-beam">
         <div className="cinema-projector-dust">
@@ -147,79 +158,87 @@ export default function CinemaTransition({
         </div>
       </div>
 
-      {/* ── Center Stage: Stamped VIP Ticket ── */}
-      <div className={`cinema-ticket-container ${isParting ? 'ticket-part-zoom' : 'ticket-stamp-in'}`}>
-        <div className="cinema-ticket-card">
-          {/* Perforated Notches on Left & Right */}
-          <div className="ticket-notch notch-left" />
-          <div className="ticket-notch notch-right" />
+      {/* ── Center Stage: Stamped VIP Ticket + Untilted Prompt ── */}
+      <div className="cinema-center-stage">
+        <div className={`cinema-ticket-container ${isParting ? 'ticket-part-zoom' : 'ticket-stamp-in'}`}>
+          <div className="cinema-ticket-card">
+            {/* Perforated Notches on Left & Right */}
+            <div className="ticket-notch notch-left" />
+            <div className="ticket-notch notch-right" />
 
-          {/* Ticket Header */}
-          <div className="ticket-header">
-            <div className="ticket-brand">
-              <img src={logoMini} alt="Meowvie Logo" className="ticket-logo" />
-              <div>
-                <span className="ticket-brand-name">MEOWVIE CINEMA</span>
-                <span className="ticket-brand-tag">SHOWTIME PREMIERE</span>
+            {/* Ticket Header */}
+            <div className="ticket-header">
+              <div className="ticket-brand">
+                <img src={logoMini} alt="Meowvie Logo" className="ticket-logo" />
+                <div>
+                  <span className="ticket-brand-name">MEOWVIE CINEMA</span>
+                </div>
+              </div>
+              <div className="ticket-badge-admit">
+                <Ticket size={12} style={{ marginRight: '4px' }} />
+                TICKET
               </div>
             </div>
-            <div className="ticket-badge-admit">
-              <Ticket size={12} style={{ marginRight: '4px' }} />
-              ADMIT ONE
+
+            {/* Perforated Divider Line */}
+            <div className="ticket-divider" />
+
+            {/* Ticket Body Content */}
+            <div className="ticket-body">
+              <div className="ticket-room-section">
+                <span className="ticket-label">WATCH ROOM CODE</span>
+                <div className="ticket-code-display">
+                  {roomId ? roomId.toUpperCase() : 'MEOW'}
+                </div>
+              </div>
+
+              <div className="ticket-details-grid">
+                <div className="ticket-detail-item">
+                  <span className="ticket-label">GUEST / VIEWER</span>
+                  <span className="ticket-val">{username || 'Movie Lover'}</span>
+                </div>
+                <div className="ticket-detail-item">
+                  <span className="ticket-label">SEAT ROLE</span>
+                  <span className="ticket-val role-highlight">
+                    {isHost ? '🎬 Room Host' : '🍿 Party Co-op'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Rubber Stamp Badge */}
+              <div className="ticket-rubber-stamp">
+                <div className="stamp-inner">
+                  <Sparkles size={14} className="stamp-sparkle" />
+                  <span>VERIFIED</span>
+                  <Star size={10} className="stamp-star" />
+                </div>
+              </div>
+            </div>
+
+            {/* Ticket Footer / Barcode */}
+            <div className="ticket-footer">
+              <div className="ticket-barcode">
+                <span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
+                <span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
+              </div>
+              <span className="ticket-slogan">ENJOY THE SHOW</span>
             </div>
           </div>
 
-          {/* Perforated Divider Line */}
-          <div className="ticket-divider" />
-
-          {/* Ticket Body Content */}
-          <div className="ticket-body">
-            <div className="ticket-room-section">
-              <span className="ticket-label">WATCH ROOM CODE</span>
-              <div className="ticket-code-display">
-                {roomId ? roomId.toUpperCase() : 'MEOW'}
-              </div>
-            </div>
-
-            <div className="ticket-details-grid">
-              <div className="ticket-detail-item">
-                <span className="ticket-label">GUEST / VIEWER</span>
-                <span className="ticket-val">{username || 'Movie Lover'}</span>
-              </div>
-              <div className="ticket-detail-item">
-                <span className="ticket-label">SEAT ROLE</span>
-                <span className="ticket-val role-highlight">
-                  {isHost ? '🎬 Room Host' : '🍿 Party Co-op'}
-                </span>
-              </div>
-            </div>
-
-            {/* Rubber Stamp Badge */}
-            <div className="ticket-rubber-stamp">
-              <div className="stamp-inner">
-                <Sparkles size={14} className="stamp-sparkle" />
-                <span>VERIFIED</span>
-                <Star size={10} className="stamp-star" />
-              </div>
-            </div>
-          </div>
-
-          {/* Ticket Footer / Barcode */}
-          <div className="ticket-footer">
-            <div className="ticket-barcode">
-              <span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
-              <span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
-            </div>
-            <span className="ticket-slogan">SYNCED • BUFFER-FREE • ZERO UPLOAD</span>
+          {/* Decorative Particle Sparks around the ticket */}
+          <div className="ticket-sparks">
+            <span className="spark spark-1">✦</span>
+            <span className="spark spark-2">★</span>
+            <span className="spark spark-3">✨</span>
+            <span className="spark spark-4">✦</span>
           </div>
         </div>
 
-        {/* Decorative Particle Sparks around the ticket */}
-        <div className="ticket-sparks">
-          <span className="spark spark-1">✦</span>
-          <span className="spark spark-2">★</span>
-          <span className="spark spark-3">✨</span>
-          <span className="spark spark-4">✦</span>
+        {/* Blinking Prompt: "Click anywhere to enter." (Untilted / Straight) */}
+        <div className="cinema-enter-prompt-wrapper">
+          <div className="cinema-enter-prompt">
+            Click anywhere to enter.
+          </div>
         </div>
       </div>
     </div>

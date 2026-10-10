@@ -103,10 +103,16 @@ export default function VideoPlayer({
   const [hoverTime, setHoverTime] = useState(null);
   const [hoverPosition, setHoverPosition] = useState(0);
 
-  // Auto-hide controls after 5 seconds of inactivity
-  const [controlsVisible, setControlsVisible] = useState(true);
-  const hideControlsTimerRef = useRef(null);
-  const isHoveringControlsRef = useRef(false);
+  // Independent hover detection for top bar and bottom cinema controls
+  const [isTopBarHovered, setIsTopBarHovered] = useState(false);
+  const [isBottomBarHovered, setIsBottomBarHovered] = useState(false);
+  const [isCursorActive, setIsCursorActive] = useState(true);
+
+  const hideTopBarTimerRef = useRef(null);
+  const hideBottomBarTimerRef = useRef(null);
+  const idleCursorTimerRef = useRef(null);
+  const isDirectHoverTopRef = useRef(false);
+  const isDirectHoverBottomRef = useRef(false);
 
   // Register the external change video trigger callback
   useEffect(() => {
@@ -120,34 +126,81 @@ export default function VideoPlayer({
     }
   }, [onRegisterChangeVideoTrigger]);
 
-  const resetControlsTimer = useCallback(() => {
-    setControlsVisible(true);
-    if (hideControlsTimerRef.current) {
-      clearTimeout(hideControlsTimerRef.current);
-      hideControlsTimerRef.current = null;
+  const handleContainerMouseMove = (e) => {
+    // Keep cursor arrow visible while actively moving
+    setIsCursorActive(true);
+    if (idleCursorTimerRef.current) {
+      clearTimeout(idleCursorTimerRef.current);
     }
-    if (isPlaying) {
-      hideControlsTimerRef.current = setTimeout(() => {
-        if (!isHoveringControlsRef.current) {
-          setControlsVisible(false);
-          setShowAudioMenu(false);
-        }
-      }, 4500);
-    }
-  }, [isPlaying]);
+    idleCursorTimerRef.current = setTimeout(() => {
+      setIsCursorActive(false);
+    }, 3000);
 
-  const handleUserActivity = () => {
-    resetControlsTimer();
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const mouseY = e.clientY - rect.top;
+    const containerHeight = rect.height;
+
+    // Hotspot zones: Top 75px for movie name/top bar, Bottom 115px for down slider & controls
+    const TOP_THRESHOLD = 75;
+    const BOTTOM_THRESHOLD = containerHeight - 115;
+
+    // Top Bar: only pop up if arrow is placed at the extreme top / above top bar
+    if (mouseY <= TOP_THRESHOLD) {
+      if (hideTopBarTimerRef.current) {
+        clearTimeout(hideTopBarTimerRef.current);
+        hideTopBarTimerRef.current = null;
+      }
+      setIsTopBarHovered(true);
+    } else if (!isDirectHoverTopRef.current) {
+      if (!hideTopBarTimerRef.current) {
+        hideTopBarTimerRef.current = setTimeout(() => {
+          setIsTopBarHovered(false);
+          hideTopBarTimerRef.current = null;
+        }, 250);
+      }
+    }
+
+    // Down Slider / Bottom Controls: only pop up if arrow is placed at the extreme bottom / above controls
+    if (mouseY >= BOTTOM_THRESHOLD) {
+      if (hideBottomBarTimerRef.current) {
+        clearTimeout(hideBottomBarTimerRef.current);
+        hideBottomBarTimerRef.current = null;
+      }
+      setIsBottomBarHovered(true);
+    } else if (!isDirectHoverBottomRef.current && !showAudioMenu) {
+      if (!hideBottomBarTimerRef.current) {
+        hideBottomBarTimerRef.current = setTimeout(() => {
+          setIsBottomBarHovered(false);
+          hideBottomBarTimerRef.current = null;
+        }, 250);
+      }
+    }
+  };
+
+  const handleContainerMouseLeave = () => {
+    if (hideTopBarTimerRef.current) clearTimeout(hideTopBarTimerRef.current);
+    if (hideBottomBarTimerRef.current) clearTimeout(hideBottomBarTimerRef.current);
+    isDirectHoverTopRef.current = false;
+    isDirectHoverBottomRef.current = false;
+    setIsTopBarHovered(false);
+    if (!showAudioMenu) {
+      setIsBottomBarHovered(false);
+    }
+    setIsCursorActive(false);
+  };
+
+  const handleContainerClick = () => {
+    setIsCursorActive(true);
   };
 
   useEffect(() => {
-    resetControlsTimer();
     return () => {
-      if (hideControlsTimerRef.current) {
-        clearTimeout(hideControlsTimerRef.current);
-      }
+      if (hideTopBarTimerRef.current) clearTimeout(hideTopBarTimerRef.current);
+      if (hideBottomBarTimerRef.current) clearTimeout(hideBottomBarTimerRef.current);
+      if (idleCursorTimerRef.current) clearTimeout(idleCursorTimerRef.current);
     };
-  }, [isPlaying, resetControlsTimer]);
+  }, []);
 
   // Keep stream controller attached to active video element
   useEffect(() => {
@@ -200,6 +253,14 @@ export default function VideoPlayer({
     setVideoSrc(objectUrl);
     setVideoName(file.name);
     setIsPlaying(false);
+
+    // Briefly show title and controls for 3.5s upon loading, then auto-hide
+    setIsTopBarHovered(true);
+    setIsBottomBarHovered(true);
+    setTimeout(() => {
+      if (!isDirectHoverTopRef.current) setIsTopBarHovered(false);
+      if (!isDirectHoverBottomRef.current) setIsBottomBarHovered(false);
+    }, 3500);
 
     // Parse Matroska (MKV / WebM) EBML track metadata
     try {
@@ -746,21 +807,21 @@ export default function VideoPlayer({
           document.activeElement.blur();
         }
         togglePlay();
-        resetControlsTimer();
+        setIsCursorActive(true);
       } else if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
         e.preventDefault();
         e.stopPropagation();
         handleRelativeSeek(-10);
-        resetControlsTimer();
+        setIsCursorActive(true);
       } else if (e.code === 'ArrowRight' || e.key === 'ArrowRight') {
         e.preventDefault();
         e.stopPropagation();
         handleRelativeSeek(10);
-        resetControlsTimer();
+        setIsCursorActive(true);
       } else if (e.code === 'KeyF' || e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         toggleFullscreen();
-        resetControlsTimer();
+        setIsCursorActive(true);
       } else if (e.code === 'F11' || e.key === 'F11') {
         // Let the browser toggle F11 window mode, and sync our internal fullscreen layout state
         setTimeout(() => {
@@ -776,7 +837,7 @@ export default function VideoPlayer({
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [togglePlay, handleRelativeSeek, toggleMute, toggleFullscreen, resetControlsTimer]);
+  }, [togglePlay, handleRelativeSeek, toggleMute, toggleFullscreen]);
 
   const triggerOpenVideoPicker = () => {
     if (fileInputRef.current) {
@@ -793,11 +854,15 @@ export default function VideoPlayer({
       <div className={`ambient-glow ${!ambientGlow || !isPlaying ? 'dim' : ''}`} />
 
       <div
-        className={`video-container ${isFullscreen ? 'is-fullscreen' : ''} ${!controlsVisible && isPlaying ? 'controls-hidden' : ''}`}
+        className={`video-container ${isFullscreen ? 'is-fullscreen' : ''} ${(!isCursorActive && isPlaying && !isTopBarHovered && !isBottomBarHovered && !showAudioMenu) ? 'controls-hidden' : ''}`}
         ref={containerRef}
-        onMouseMove={handleUserActivity}
-        onTouchStart={handleUserActivity}
-        onClick={handleUserActivity}
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={handleContainerMouseLeave}
+        onTouchStart={(e) => {
+          setIsCursorActive(true);
+          setIsBottomBarHovered((prev) => !prev);
+        }}
+        onClick={handleContainerClick}
       >
         {/* Floating Reactions Overlay */}
         <FloatingReactions reactions={reactions} />
@@ -843,49 +908,32 @@ export default function VideoPlayer({
           </div>
         )}
 
-        {/* Top Header Bar inside Video Player */}
+        {/* Top Header Bar inside Video Player - Only pops up when arrow is placed at the extreme top */}
         {videoSrc && !videoError && (
           <div
-            className={`player-top-bar ${controlsVisible || !isPlaying ? 'visible' : ''}`}
+            className={`player-top-bar ${isTopBarHovered ? 'visible' : ''}`}
             onMouseEnter={() => {
-              isHoveringControlsRef.current = true;
-              if (hideControlsTimerRef.current) {
-                clearTimeout(hideControlsTimerRef.current);
-                hideControlsTimerRef.current = null;
+              isDirectHoverTopRef.current = true;
+              if (hideTopBarTimerRef.current) {
+                clearTimeout(hideTopBarTimerRef.current);
+                hideTopBarTimerRef.current = null;
               }
-              setControlsVisible(true);
+              setIsTopBarHovered(true);
             }}
             onMouseLeave={() => {
-              isHoveringControlsRef.current = false;
-              resetControlsTimer();
+              isDirectHoverTopRef.current = false;
+              hideTopBarTimerRef.current = setTimeout(() => {
+                setIsTopBarHovered(false);
+                hideTopBarTimerRef.current = null;
+              }, 250);
             }}
           >
             <div className="player-file-info">
               <Film size={15} color="#ff2a6d" />
               <span className="player-file-name" title={videoName}>{videoName}</span>
-              {mkvData && (
-                <span className="player-format-tag" title="Matroska (MKV) Container">MKV</span>
-              )}
             </div>
 
             <div className="player-top-actions">
-              {/* Audio Track Indicator / Switcher */}
-              {mkvData?.audioTracks?.length > 0 && (
-                <button
-                  className={`player-track-pill audio ${mkvData.audioTracks.length > 1 ? 'clickable' : ''}`}
-                  onClick={() => {
-                    if (mkvData.audioTracks.length > 1) {
-                      setShowAudioMenu(!showAudioMenu);
-                    }
-                  }}
-                  title={mkvData.audioTracks.length > 1 ? 'Click to switch audio track' : 'Audio Track Info'}
-                >
-                  <Headphones size={13} />
-                  <span>{activeAudioTrack?.name || 'Audio'}</span>
-                  {mkvData.audioTracks.length > 1 && <span className="pill-badge">{mkvData.audioTracks.length}</span>}
-                </button>
-              )}
-
               {controlMode === 'host-only' && (
                 <div
                   className={`player-mode-badge ${isHost ? 'host' : 'guest'}`}
@@ -1063,21 +1111,26 @@ export default function VideoPlayer({
           }}
         />
 
-        {/* Cinema Controls Bar */}
+        {/* Cinema Controls Bar - Only pops up when arrow is placed at the extreme bottom */}
         {videoSrc && !videoError && (
           <div
-            className={`cinema-controls ${controlsVisible || !isPlaying ? 'visible' : ''}`}
+            className={`cinema-controls ${(isBottomBarHovered || showAudioMenu) ? 'visible' : ''}`}
             onMouseEnter={() => {
-              isHoveringControlsRef.current = true;
-              if (hideControlsTimerRef.current) {
-                clearTimeout(hideControlsTimerRef.current);
-                hideControlsTimerRef.current = null;
+              isDirectHoverBottomRef.current = true;
+              if (hideBottomBarTimerRef.current) {
+                clearTimeout(hideBottomBarTimerRef.current);
+                hideBottomBarTimerRef.current = null;
               }
-              setControlsVisible(true);
+              setIsBottomBarHovered(true);
             }}
             onMouseLeave={() => {
-              isHoveringControlsRef.current = false;
-              resetControlsTimer();
+              isDirectHoverBottomRef.current = false;
+              if (!showAudioMenu) {
+                hideBottomBarTimerRef.current = setTimeout(() => {
+                  setIsBottomBarHovered(false);
+                  hideBottomBarTimerRef.current = null;
+                }, 250);
+              }
             }}
           >
             {/* Seeker / Progress */}

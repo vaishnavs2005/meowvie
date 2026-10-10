@@ -167,7 +167,10 @@ export default function Header({
                   </div>
                 </>
               ) : (
-                <MicOff size={15} className="mic-icon" />
+                <>
+                  <MicOff size={15} className="mic-icon" />
+                  <span className="ptt-hint">OFF</span>
+                </>
               )}
             </button>
           )}
