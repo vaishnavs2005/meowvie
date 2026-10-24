@@ -2078,7 +2078,7 @@ body {
   box-shadow: var(--shadow-comic);
 }
 
-/* Video Error & Transmux Overlays */
+/* Video Error Overlay */
 .video-error-overlay {
   position: absolute;
   inset: 0;
@@ -2119,20 +2119,6 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-}
-.btn-transmux-fix {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--accent-red);
-  color: #fff;
-  font-weight: 800;
-  padding: 10px 20px;
-  border-radius: var(--radius-full);
-  border: 2.5px solid var(--stroke-cream);
-  outline: 2px solid #1A1A1A;
-  box-shadow: var(--shadow-comic-sm);
-  cursor: pointer;
 }
 
 /* ==========================================================================

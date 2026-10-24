@@ -19,16 +19,12 @@ import {
   Headphones,
   Check,
   Radio,
-  Sliders,
-  Zap,
-  Loader2
+  Sliders
 } from 'lucide-react';
 import FloatingReactions from './FloatingReactions';
 import FullscreenChatOverlay from './FullscreenChatOverlay';
 import { generateSampleMovieBlob } from '../services/sampleVideoGenerator';
 import { parseMkvMetadata } from '../services/mkvParser';
-import { transmuxForBrowser } from '../utils/browserTransmuxer';
-import { MseStreamController } from '../utils/streamingTransmuxer';
 
 function formatTime(seconds) {
   if (!isFinite(seconds) || seconds === null || seconds < 0) return '00:00';
@@ -85,14 +81,6 @@ export default function VideoPlayer({
   const [ambientGlow, setAmbientGlow] = useState(true);
   const [isGeneratingDemo, setIsGeneratingDemo] = useState(false);
   const [videoError, setVideoError] = useState(null);
-  const [isTransmuxing, setIsTransmuxing] = useState(false);
-  const [transmuxProgress, setTransmuxProgress] = useState(0);
-  const [transmuxTime, setTransmuxTime] = useState(0);
-  const [isBufferingSegment, setIsBufferingSegment] = useState(false);
-  const [bufferingMessage, setBufferingMessage] = useState('');
-  const [isBackgroundStreaming, setIsBackgroundStreaming] = useState(false);
-  const streamControllerRef = useRef(null);
-  const abortTransmuxRef = useRef(null);
 
   // MKV Metadata (Audio Settings & Multi-Audio Tracks)
   const [mkvData, setMkvData] = useState(null);
@@ -202,13 +190,6 @@ export default function VideoPlayer({
     };
   }, []);
 
-  // Keep stream controller attached to active video element
-  useEffect(() => {
-    if (streamControllerRef.current && videoRef.current) {
-      streamControllerRef.current.setVideoElement(videoRef.current);
-    }
-  }, [videoRef.current, videoSrc]);
-
   // Guard flag to prevent local DOM events from echo-triggering remote actions
   const isApplyingRemote = useRef(false);
 
@@ -234,15 +215,6 @@ export default function VideoPlayer({
   // Handle Loading Local Video File (Supports .mkv, .mp4, .webm, etc.)
   const handleFileSelect = useCallback(async (file) => {
     if (!file) return;
-
-    if (streamControllerRef.current) {
-      streamControllerRef.current.destroy();
-      streamControllerRef.current = null;
-    }
-    setIsTransmuxing(false);
-    setIsBufferingSegment(false);
-    setIsBackgroundStreaming(false);
-    setBufferingMessage('');
 
     setVideoError(null);
     sampleDurationRef.current = null;
@@ -327,178 +299,6 @@ export default function VideoPlayer({
     }
   };
 
-  // Start in-browser progressive streaming (Copies video lossless, decodes E-AC-3/AC-3 audio to AAC)
-  const handleStartTransmux = async () => {
-    if (!currentFileObj) return;
-    try {
-      setIsTransmuxing(true);
-      setTransmuxProgress(0);
-      setTransmuxTime(0);
-      setIsBufferingSegment(true);
-      setBufferingMessage('Buffering movie start (ready in 1–2s)...');
-
-      if (streamControllerRef.current) {
-        streamControllerRef.current.destroy();
-        streamControllerRef.current = null;
-      }
-
-      if (onShowToast) {
-        onShowToast('⚡ Starting instant stream with background audio conversion...');
-      }
-
-      const fileDuration = mkvData?.duration || duration || 0;
-
-      // Check if MediaSource is supported in browser
-      if (window.MediaSource && MediaSource.isTypeSupported) {
-        const controller = new MseStreamController(currentFileObj, {
-          duration: fileDuration,
-          selectedAudioTrackIndex,
-          videoElement: videoRef.current,
-          onStatus: ({ status, progress, processedTime, message }) => {
-            if (progress !== undefined) setTransmuxProgress(progress);
-            if (processedTime !== undefined) setTransmuxTime(processedTime);
-            if (status === 'buffering') {
-              setIsBufferingSegment(true);
-              if (message) setBufferingMessage(message);
-            } else if (status === 'streaming') {
-              setIsBufferingSegment(false);
-            } else if (status === 'complete') {
-              setIsBackgroundStreaming(false);
-              setIsTransmuxing(false);
-              setTransmuxProgress(100);
-              setIsBufferingSegment(false);
-              if (onShowToast) {
-                onShowToast('🎉 Full movie converted & buffered in background! All sections ready.');
-              }
-            }
-          },
-          onReady: () => {
-            // Dismiss full-screen modal immediately, show video and start playing!
-            setIsBufferingSegment(false);
-            setIsTransmuxing(false);
-            setIsBackgroundStreaming(true);
-            setVideoSrc(controller.getMediaUrl());
-            setVideoError(null);
-
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-              videoRef.current.volume = 1;
-              videoRef.current.play().then(() => {
-                setIsPlaying(true);
-              }).catch((err) => {
-                console.warn('Autoplay note after stream ready:', err);
-              });
-            }
-            setIsMuted(false);
-            setVolume(1);
-
-            if (onShowToast) {
-              onShowToast('🚀 Playing now! Progressive conversion continuing in background.');
-            }
-          },
-          onError: async (err) => {
-            console.warn('MSE stream fallback note:', err);
-            if (controller) {
-              controller.destroy();
-            }
-            streamControllerRef.current = null;
-            setIsBackgroundStreaming(false);
-            setIsBufferingSegment(false);
-
-            if (onShowToast) {
-              onShowToast('Falling back to full compatibility converter...');
-            }
-
-            try {
-              setIsTransmuxing(true);
-              abortTransmuxRef.current = new AbortController();
-              const result = await transmuxForBrowser(
-                currentFileObj,
-                (p, t) => {
-                  setTransmuxProgress(p);
-                  setTransmuxTime(t);
-                },
-                abortTransmuxRef.current.signal,
-                selectedAudioTrackIndex
-              );
-              setVideoSrc(result.url);
-              setVideoError(null);
-              setIsPlaying(false);
-              setIsTransmuxing(false);
-              if (videoRef.current) {
-                videoRef.current.muted = false;
-                videoRef.current.volume = 1;
-              }
-              setIsMuted(false);
-              setVolume(1);
-            } catch (fallbackErr) {
-              setIsTransmuxing(false);
-              setVideoError(`Could not stream or convert file: ${fallbackErr.message}. Try an MP4 (H.264) file.`);
-            }
-          },
-        });
-
-        streamControllerRef.current = controller;
-        // Attach MediaSource object URL immediately so the browser opens MediaSource and fires sourceopen!
-        setVideoSrc(controller.getMediaUrl());
-        setVideoError(null);
-        return;
-      }
-
-      // Fallback to full transmuxer if MediaSource is unavailable
-      abortTransmuxRef.current = new AbortController();
-      const result = await transmuxForBrowser(
-        currentFileObj,
-        (progress, processedTime) => {
-          setTransmuxProgress(progress);
-          setTransmuxTime(processedTime);
-        },
-        abortTransmuxRef.current.signal,
-        selectedAudioTrackIndex
-      );
-
-      setVideoSrc(result.url);
-      setVideoError(null);
-      setIsPlaying(false);
-      setIsBufferingSegment(false);
-      setIsTransmuxing(false);
-
-      if (videoRef.current) {
-        videoRef.current.muted = false;
-        videoRef.current.volume = 1;
-      }
-      setIsMuted(false);
-      setVolume(1);
-
-      if (onShowToast) {
-        onShowToast('🎉 Ready to play! Video remuxed with browser-compatible AAC stereo audio.');
-      }
-    } catch (err) {
-      console.error('Transmux error:', err);
-      setIsTransmuxing(false);
-      setIsBufferingSegment(false);
-      setIsBackgroundStreaming(false);
-      if (onShowToast) {
-        onShowToast(`Auto-fix note: ${err.message}`);
-      }
-      setVideoError(`Could not auto-remux this file: ${err.message}. Try another video.`);
-    }
-  };
-
-  const handleCancelTransmux = () => {
-    if (streamControllerRef.current) {
-      streamControllerRef.current.destroy();
-      streamControllerRef.current = null;
-    }
-    if (abortTransmuxRef.current) {
-      abortTransmuxRef.current.abort();
-    }
-    setIsTransmuxing(false);
-    setIsBufferingSegment(false);
-    setIsBackgroundStreaming(false);
-    if (onShowToast) onShowToast('Conversion cancelled.');
-  };
-
   // Listen for video duration and metadata
   const handleLoadedMetadata = () => {
     const video = videoRef.current;
@@ -509,10 +309,6 @@ export default function VideoPlayer({
     }
     setDuration(dur);
     setVideoError(null);
-
-    if (streamControllerRef.current && dur > 0) {
-      streamControllerRef.current.setTotalDuration(dur);
-    }
 
     if (onMetadataLoaded) {
       onMetadataLoaded({
@@ -596,14 +392,7 @@ export default function VideoPlayer({
     if (!isFinite(newTime)) return;
 
     setCurrentTime(newTime);
-
-    if (streamControllerRef.current) {
-      setIsBufferingSegment(true);
-      setBufferingMessage(`Jumping to ${formatTime(newTime)}...`);
-      streamControllerRef.current.seek(newTime);
-    } else {
-      video.currentTime = newTime;
-    }
+    video.currentTime = newTime;
 
     if (!isApplyingRemote.current && onPlaybackAction) {
       onPlaybackAction('seek', newTime);
@@ -627,14 +416,7 @@ export default function VideoPlayer({
     if (!isFinite(targetTime)) return;
 
     setCurrentTime(targetTime);
-
-    if (streamControllerRef.current) {
-      setIsBufferingSegment(true);
-      setBufferingMessage(`Jumping to ${formatTime(targetTime)}...`);
-      streamControllerRef.current.seek(targetTime);
-    } else {
-      video.currentTime = targetTime;
-    }
+    video.currentTime = targetTime;
 
     if (!isApplyingRemote.current && onPlaybackAction) {
       onPlaybackAction('seek', targetTime);
@@ -747,23 +529,11 @@ export default function VideoPlayer({
 
     if (remoteAction.type === 'seek') {
       setCurrentTime(targetTime);
-      if (streamControllerRef.current) {
-        setIsBufferingSegment(true);
-        setBufferingMessage(`Syncing to ${formatTime(targetTime)}...`);
-        streamControllerRef.current.seek(targetTime);
-      } else {
-        video.currentTime = targetTime;
-      }
+      video.currentTime = targetTime;
     } else if (remoteAction.type === 'play') {
       if (Math.abs(video.currentTime - targetTime) > 0.4) {
         setCurrentTime(targetTime);
-        if (streamControllerRef.current) {
-          setIsBufferingSegment(true);
-          setBufferingMessage(`Syncing to ${formatTime(targetTime)}...`);
-          streamControllerRef.current.seek(targetTime);
-        } else {
-          video.currentTime = targetTime;
-        }
+        video.currentTime = targetTime;
       }
       video.play()
         .then(() => {
@@ -943,103 +713,39 @@ export default function VideoPlayer({
                   <span>{isHost ? 'Host Controls Active' : 'Host-Only Mode (Locked)'}</span>
                 </div>
               )}
-
-              {/* Progressive Background Streaming Status Pill */}
-              {isBackgroundStreaming && (
-                <div
-                  className="stream-background-pill"
-                  title="Audio is progressively converting into AAC in the background without interrupting your watch party"
-                >
-                  <span className="stream-pulse-dot" />
-                  <Zap size={13} className="stream-zap-icon" />
-                  <span>Converting: {transmuxProgress}%</span>
-                  {transmuxTime > 0 && (
-                    <span className="stream-time-tag">({formatTime(transmuxTime)})</span>
-                  )}
-                  <button
-                    className="stream-cancel-tiny"
-                    onClick={handleCancelTransmux}
-                    title="Cancel background conversion"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
 
-        {/* Main Video Element - ALWAYS kept mounted when videoSrc exists so MediaSource can attach and open! */}
+        {/* Main Video Element */}
         {videoSrc && (
-          <>
-            <video
-              ref={videoRef}
-              src={videoSrc}
-              playsInline
-              className="video-element"
-              onTimeUpdate={handleNativeTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onDoubleClick={toggleFullscreen}
-              onError={(e) => {
-                // Ignore initial video errors if we are actively transmuxing/streaming
-                if (!isTransmuxing && !isBufferingSegment && !isBackgroundStreaming) {
-                  console.error('HTML5 video playback error:', e);
-                  setVideoError(
-                    'Browser could not decode this video/audio format (common with HEVC/DTS in MKV). Try an MP4 (H.264) or WebM file.'
-                  );
-                }
-              }}
-            />
-            {/* On-demand seek buffering indicator */}
-            {!isTransmuxing && isBufferingSegment && (
-              <div className="stream-seeking-indicator">
-                <Loader2 size={24} className="spinner-spin" />
-                <span>{bufferingMessage || 'Buffering section...'}</span>
-              </div>
-            )}
-          </>
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            playsInline
+            className="video-element"
+            onTimeUpdate={handleNativeTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onDoubleClick={toggleFullscreen}
+            onError={(e) => {
+              console.error('HTML5 video playback error:', e);
+              setVideoError(
+                'Browser could not decode this video/audio format (common with HEVC/DTS in MKV). Try an MP4 (H.264) or WebM file.'
+              );
+            }}
+          />
         )}
 
-        {/* Initial Stream / Transmux Buffering Modal (Displayed above video during the ~1-2s start) */}
-        {isTransmuxing && (
-          <div className="transmux-progress-overlay">
-            <div className="transmux-spinner-box">
-              <Zap size={40} className="transmux-zap-icon" />
-            </div>
-            <h3 className="transmux-title">Buffering Movie Start...</h3>
-            <p className="transmux-desc">
-              Initializing stream engine & converting audio in background. Playback starts automatically in ~1–2 seconds...
-            </p>
-            <div className="transmux-progress-bar-container">
-              <div className="transmux-progress-bar indeterminate" />
-            </div>
-            <div className="transmux-progress-meta">
-              <span className="transmux-percent">{bufferingMessage || 'Preparing audio stream...'}</span>
-            </div>
-            <button className="transmux-cancel-btn" onClick={handleCancelTransmux}>
-              Cancel
-            </button>
-          </div>
-        )}
-
-        {/* Error View (only if not currently transmuxing or background streaming) */}
-        {!isTransmuxing && !isBackgroundStreaming && videoError && (
+        {/* Error View */}
+        {videoError && (
           <div className="video-error-overlay">
             <div className="video-error-icon">
               <AlertTriangle size={42} color="#f43f5e" />
             </div>
             <h3 className="video-error-title">Unable to Play Video</h3>
-            <p className="video-error-desc">
-              {videoError}
-              {currentFileObj && (
-                <span className="video-error-hint">
-                  <br />
-                  💡 Click <strong>"⚡ Fix & Play in Browser"</strong> below to automatically repackage this file and decode the audio to web AAC without losing video quality!
-                </span>
-              )}
-            </p>
+            <p className="video-error-desc">{videoError}</p>
 
             {mkvData && (
               <div className="mkv-error-details">
@@ -1054,30 +760,18 @@ export default function VideoPlayer({
             )}
 
             <div className="video-error-actions">
-              {currentFileObj && (
-                <button
-                  className="btn-transmux-fix"
-                  onClick={handleStartTransmux}
-                  disabled={isTransmuxing}
-                  title="Automatically remux container and convert audio to browser-supported AAC"
-                >
-                  <Zap size={18} />
-                  <span>⚡ Fix & Play in Browser</span>
-                </button>
-              )}
               <button
                 className="btn-file-select"
                 onClick={triggerOpenVideoPicker}
               >
                 <Upload size={18} /> Choose Another Video File
               </button>
-
             </div>
           </div>
         )}
 
         {/* Dropzone View if no file loaded */}
-        {!videoSrc && !isTransmuxing && (
+        {!videoSrc && (
           <div className="dropzone-overlay">
             <div className="dropzone-icon">
               <Film size={36} />
@@ -1094,8 +788,6 @@ export default function VideoPlayer({
             >
               <Upload size={18} /> Choose Video File (.mkv, .mp4, .webm)
             </button>
-
-
           </div>
         )}
 
@@ -1276,7 +968,7 @@ export default function VideoPlayer({
                         </div>
 
                         <div className="track-popover-footer">
-                          <span>MKV Audio: Full fidelity surround/stereo decoded</span>
+                          <span>Select audio track to switch stream</span>
                         </div>
                       </div>
                     )}
