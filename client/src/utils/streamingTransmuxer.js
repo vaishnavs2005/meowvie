@@ -1,5 +1,4 @@
 import { registerAc3Decoder } from '@mediabunny/ac3';
-import { registerDtsDecoder } from '@mediabunny/dts';
 import { registerAacEncoder } from '@mediabunny/aac-encoder';
 import {
   Input,
@@ -20,11 +19,6 @@ export function ensureDecodersRegistered() {
       registerAc3Decoder();
     } catch (e) {
       console.warn('AC-3 decoder registration note:', e);
-    }
-    try {
-      registerDtsDecoder();
-    } catch (e) {
-      console.warn('DTS decoder registration note:', e);
     }
     try {
       registerAacEncoder();
@@ -68,7 +62,6 @@ export class MseStreamController {
     this.isAwaitingSeekBuffer = false;
     this.totalDuration = options.duration || 0;
     this.currentStreamOffset = 0;
-    this.initialStartTime = options.startTime || 0;
 
     ensureDecodersRegistered();
     this.bindVideoListeners();
@@ -187,20 +180,8 @@ export class MseStreamController {
         }
       }
 
-      if (this.initialStartTime > 0) {
-        try {
-          this.sourceBuffer.timestampOffset = this.initialStartTime;
-          if (this.videoElement) {
-            this.videoElement.currentTime = this.initialStartTime;
-          }
-        } catch (e) {
-          console.warn('Initial timestampOffset note:', e);
-        }
-        this.startStreamSegment(this.initialStartTime);
-      } else {
-        // Start stream segment from 00:00
-        this.startStreamSegment(0);
-      }
+      // Start stream segment from 00:00
+      this.startStreamSegment(0);
     } catch (err) {
       console.error('Failed to initialize SourceBuffer:', err);
       this.onError(err);
@@ -214,46 +195,23 @@ export class MseStreamController {
         formats: ALL_FORMATS,
       });
       const videoTrack = await input.getPrimaryVideoTrack();
-      const audioTracks = await input.getAudioTracks().catch(() => []);
-      const hasAudio = audioTracks && audioTracks.length > 0;
-      const audioCodecStr = hasAudio ? ', mp4a.40.2' : '';
-
       if (videoTrack) {
         const codec = await videoTrack.getCodec();
-        let param = null;
-        try {
-          if (typeof videoTrack.getCodecParameterString === 'function') {
-            param = await videoTrack.getCodecParameterString();
-          }
-        } catch (e) {}
-
-        if (param) {
-          const cand = `video/mp4; codecs="${param}${audioCodecStr}"`;
-          if (MediaSource.isTypeSupported(cand)) return cand;
-        }
-
         if (codec === 'hevc') {
           const hevcCandidates = [
-            `video/mp4; codecs="hvc1.1.6.L93.B0${audioCodecStr}"`,
-            `video/mp4; codecs="hev1.1.6.L93.B0${audioCodecStr}"`,
-            `video/mp4; codecs="hvc1${audioCodecStr}"`,
+            'video/mp4; codecs="hvc1.1.6.L93.B0, mp4a.40.2"',
+            'video/mp4; codecs="hev1.1.6.L93.B0, mp4a.40.2"',
+            'video/mp4; codecs="hvc1, mp4a.40.2"',
+            'video/mp4; codecs="hvc1.1.6.L93.B0"',
           ];
           for (const cand of hevcCandidates) {
             if (MediaSource.isTypeSupported(cand)) return cand;
           }
           throw new Error('HEVC playback via MediaSource is not supported by your browser');
         } else if (codec === 'avc') {
-          const avcCandidates = [
-            `video/mp4; codecs="avc1.640028${audioCodecStr}"`,
-            `video/mp4; codecs="avc1.4d401f${audioCodecStr}"`,
-            `video/mp4; codecs="avc1.42E01E${audioCodecStr}"`,
-          ];
-          for (const cand of avcCandidates) {
-            if (MediaSource.isTypeSupported(cand)) return cand;
-          }
+          return 'video/mp4; codecs="avc1.640028, mp4a.40.2"';
         } else if (codec === 'vp9') {
-          const vp9Cand = `video/mp4; codecs="vp09.00.10.08${audioCodecStr}"`;
-          if (MediaSource.isTypeSupported(vp9Cand)) return vp9Cand;
+          return 'video/mp4; codecs="vp09.00.10.08, mp4a.40.2"';
         }
       }
     } catch (e) {
@@ -261,8 +219,8 @@ export class MseStreamController {
     }
 
     const fallbacks = [
+      'video/mp4; codecs="hvc1.1.6.L93.B0, mp4a.40.2"',
       'video/mp4; codecs="avc1.640028, mp4a.40.2"',
-      'video/mp4; codecs="avc1.4d401f, mp4a.40.2"',
       'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
     ];
     for (const fb of fallbacks) {
@@ -363,13 +321,6 @@ export class MseStreamController {
         target,
       });
 
-      const audioTracks = await input.getAudioTracks().catch(() => []);
-      const totalAudio = audioTracks.length;
-      let targetIdx = this.selectedAudioTrackIndex ?? 0;
-      if (targetIdx < 0 || (totalAudio > 0 && targetIdx >= totalAudio)) {
-        targetIdx = 0;
-      }
-
       const conversionOptions = {
         input,
         output,
@@ -378,7 +329,7 @@ export class MseStreamController {
         },
         audio: (track, n) => {
           const trackIdx = track.number !== undefined ? track.number - 1 : (n !== undefined ? n - 1 : 0);
-          if (trackIdx === targetIdx) {
+          if (trackIdx === this.selectedAudioTrackIndex || trackIdx === 0) {
             return {
               numberOfChannels: 2, // Downmix 5.1/7.1 to 2-channel stereo for universal browser support
               forceTranscode: true,
@@ -395,20 +346,7 @@ export class MseStreamController {
         };
       }
 
-      try {
-        this.currentConversion = await Conversion.init(conversionOptions);
-      } catch (initErr) {
-        console.warn('Initial streaming Conversion.init failed, retrying primary track:', initErr);
-        this.currentConversion = await Conversion.init({
-          input,
-          output,
-          tracks: 'primary',
-          video: { forceTranscode: false },
-          audio: { numberOfChannels: 2, forceTranscode: true },
-          ...(startTime > 0 ? { trim: { start: startTime } } : {}),
-          showWarnings: false,
-        });
-      }
+      this.currentConversion = await Conversion.init(conversionOptions);
 
       if (signal.aborted || this.isDestroyed) return;
 

@@ -1,5 +1,4 @@
 import { registerAc3Decoder } from '@mediabunny/ac3';
-import { registerDtsDecoder } from '@mediabunny/dts';
 import { registerAacEncoder } from '@mediabunny/aac-encoder';
 import {
   Input,
@@ -21,12 +20,6 @@ export function ensureDecodersRegistered() {
       console.log('✅ Mediabunny AC-3 & E-AC-3 WASM decoder registered');
     } catch (e) {
       console.warn('Failed to register AC-3 decoder:', e);
-    }
-    try {
-      registerDtsDecoder();
-      console.log('✅ Mediabunny DTS WASM decoder registered');
-    } catch (e) {
-      console.warn('Failed to register DTS decoder:', e);
     }
     try {
       registerAacEncoder();

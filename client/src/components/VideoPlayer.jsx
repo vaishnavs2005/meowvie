@@ -212,23 +212,6 @@ export default function VideoPlayer({
   // Guard flag to prevent local DOM events from echo-triggering remote actions
   const isApplyingRemote = useRef(false);
 
-function isUnsupportedAudioCodec(codecId = '', codecName = '') {
-  const id = (codecId || '').toUpperCase();
-  const name = (codecName || '').toUpperCase();
-  return (
-    id.includes('AC3') ||
-    id.includes('AC-3') ||
-    id.includes('EAC3') ||
-    id.includes('A_AC3') ||
-    id.includes('A_EAC3') ||
-    id.includes('DTS') ||
-    name.includes('DTS') ||
-    id.includes('TRUEHD') ||
-    name.includes('TRUEHD') ||
-    id.includes('MLP')
-  );
-}
-
   // Switch Audio Track
   const handleSelectAudioTrack = (index) => {
     setSelectedAudioTrackIndex(index);
@@ -245,12 +228,6 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
 
     if (track && onShowToast) {
       onShowToast(`Switched Audio Setting: ${track.name} (${track.codecName} • ${track.channelString})`);
-    }
-
-    // If we have a local file, restart stream transmuxer with the selected audio track at current time
-    if (currentFileObj) {
-      const curTime = video ? video.currentTime : currentTime;
-      handleStartTransmux(currentFileObj, index, curTime);
     }
   };
 
@@ -271,6 +248,9 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
     sampleDurationRef.current = null;
     currentFileNameRef.current = file.name;
     setCurrentFileObj(file);
+
+    const objectUrl = URL.createObjectURL(file);
+    setVideoSrc(objectUrl);
     setVideoName(file.name);
     setIsPlaying(false);
 
@@ -282,55 +262,31 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
       if (!isDirectHoverBottomRef.current) setIsBottomBarHovered(false);
     }, 3500);
 
-    const isMkv = file.name?.toLowerCase().endsWith('.mkv') || file.type === 'video/x-matroska';
-
     // Parse Matroska (MKV / WebM) EBML track metadata
-    let parsed = null;
     try {
-      parsed = await parseMkvMetadata(file);
+      const parsed = await parseMkvMetadata(file);
+      if (parsed) {
+        setMkvData(parsed);
+
+        // Find default or first audio track
+        const defaultAudioIdx = parsed.audioTracks.findIndex((t) => t.isDefault);
+        setSelectedAudioTrackIndex(defaultAudioIdx >= 0 ? defaultAudioIdx : 0);
+
+        const audioMsg = parsed.audioTracks.length > 0 ? `${parsed.audioTracks.length} Audio setting(s)` : '';
+        if (audioMsg && onShowToast) {
+          onShowToast(`Loaded MKV: ${file.name} (${audioMsg})`);
+        } else if (onShowToast) {
+          onShowToast(`Loaded: ${file.name}`);
+        }
+      } else {
+        setMkvData(null);
+        if (onShowToast) onShowToast(`Loaded: ${file.name}`);
+      }
     } catch (err) {
       console.warn('Metadata inspection note:', err);
-    }
-
-    if (parsed) {
-      setMkvData(parsed);
-
-      // Find default or first audio track
-      const defaultAudioIdx = parsed.audioTracks.findIndex((t) => t.isDefault);
-      const chosenTrackIdx = defaultAudioIdx >= 0 ? defaultAudioIdx : 0;
-      setSelectedAudioTrackIndex(chosenTrackIdx);
-
-      const hasUnsupportedAudio = parsed.audioTracks.some((t) =>
-        isUnsupportedAudioCodec(t.codecId, t.codecName)
-      );
-
-      // MKV files with Dolby/DTS audio or multiple audio tracks cannot play/switch audio natively in browsers
-      if (hasUnsupportedAudio || (isMkv && parsed.audioTracks.length > 0)) {
-        const audioMsg = `${parsed.audioTracks.length} audio track(s) - decoding Dolby/DTS in background`;
-        if (onShowToast) onShowToast(`⚡ Loaded MKV: ${file.name} (${audioMsg})`);
-        handleStartTransmux(file, chosenTrackIdx, 0);
-        return;
-      }
-
-      const audioMsg = parsed.audioTracks.length > 0 ? `${parsed.audioTracks.length} Audio setting(s)` : '';
-      if (audioMsg && onShowToast) {
-        onShowToast(`Loaded MKV: ${file.name} (${audioMsg})`);
-      } else if (onShowToast) {
-        onShowToast(`Loaded: ${file.name}`);
-      }
-    } else {
       setMkvData(null);
-      if (isMkv) {
-        // Unparsed MKV file - MKVs almost universally contain AC3/EAC3/DTS audio which browsers cannot decode
-        if (onShowToast) onShowToast(`⚡ Loaded MKV: ${file.name} (decoding audio in background)`);
-        handleStartTransmux(file, 0, 0);
-        return;
-      }
       if (onShowToast) onShowToast(`Loaded: ${file.name}`);
     }
-
-    const objectUrl = URL.createObjectURL(file);
-    setVideoSrc(objectUrl);
   }, [onShowToast]);
 
   // Handle Drag and Drop
@@ -371,31 +327,22 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
     }
   };
 
-  // Start in-browser progressive streaming (Copies video lossless, decodes E-AC-3/AC-3/DTS audio to AAC)
-  const handleStartTransmux = async (
-    fileToTransmux = currentFileObj,
-    trackIndexToUse = selectedAudioTrackIndex,
-    startTime = 0
-  ) => {
-    const targetFile = fileToTransmux || currentFileObj;
-    if (!targetFile) return;
+  // Start in-browser progressive streaming (Copies video lossless, decodes E-AC-3/AC-3 audio to AAC)
+  const handleStartTransmux = async () => {
+    if (!currentFileObj) return;
     try {
       setIsTransmuxing(true);
       setTransmuxProgress(0);
-      setTransmuxTime(startTime);
+      setTransmuxTime(0);
       setIsBufferingSegment(true);
-      setBufferingMessage(
-        startTime > 0
-          ? `Buffering audio at ${formatTime(startTime)}...`
-          : 'Buffering movie audio (ready in 1–2s)...'
-      );
+      setBufferingMessage('Buffering movie start (ready in 1–2s)...');
 
       if (streamControllerRef.current) {
         streamControllerRef.current.destroy();
         streamControllerRef.current = null;
       }
 
-      if (onShowToast && startTime === 0) {
+      if (onShowToast) {
         onShowToast('⚡ Starting instant stream with background audio conversion...');
       }
 
@@ -403,10 +350,9 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
 
       // Check if MediaSource is supported in browser
       if (window.MediaSource && MediaSource.isTypeSupported) {
-        const controller = new MseStreamController(targetFile, {
+        const controller = new MseStreamController(currentFileObj, {
           duration: fileDuration,
-          startTime: startTime,
-          selectedAudioTrackIndex: trackIndexToUse,
+          selectedAudioTrackIndex,
           videoElement: videoRef.current,
           onStatus: ({ status, progress, processedTime, message }) => {
             if (progress !== undefined) setTransmuxProgress(progress);
@@ -422,7 +368,7 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
               setTransmuxProgress(100);
               setIsBufferingSegment(false);
               if (onShowToast) {
-                onShowToast('🎉 Full movie converted & buffered in background! Audio is crystal clear.');
+                onShowToast('🎉 Full movie converted & buffered in background! All sections ready.');
               }
             }
           },
@@ -437,9 +383,6 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
             if (videoRef.current) {
               videoRef.current.muted = false;
               videoRef.current.volume = 1;
-              if (startTime > 0) {
-                videoRef.current.currentTime = startTime;
-              }
               videoRef.current.play().then(() => {
                 setIsPlaying(true);
               }).catch((err) => {
@@ -449,8 +392,8 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
             setIsMuted(false);
             setVolume(1);
 
-            if (onShowToast && startTime === 0) {
-              onShowToast('🚀 Playing now with decoded stereo audio!');
+            if (onShowToast) {
+              onShowToast('🚀 Playing now! Progressive conversion continuing in background.');
             }
           },
           onError: async (err) => {
@@ -470,13 +413,13 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
               setIsTransmuxing(true);
               abortTransmuxRef.current = new AbortController();
               const result = await transmuxForBrowser(
-                targetFile,
+                currentFileObj,
                 (p, t) => {
                   setTransmuxProgress(p);
                   setTransmuxTime(t);
                 },
                 abortTransmuxRef.current.signal,
-                trackIndexToUse
+                selectedAudioTrackIndex
               );
               setVideoSrc(result.url);
               setVideoError(null);
@@ -505,13 +448,13 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
       // Fallback to full transmuxer if MediaSource is unavailable
       abortTransmuxRef.current = new AbortController();
       const result = await transmuxForBrowser(
-        targetFile,
+        currentFileObj,
         (progress, processedTime) => {
           setTransmuxProgress(progress);
           setTransmuxTime(processedTime);
         },
         abortTransmuxRef.current.signal,
-        trackIndexToUse
+        selectedAudioTrackIndex
       );
 
       setVideoSrc(result.url);
@@ -538,7 +481,7 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
       if (onShowToast) {
         onShowToast(`Auto-fix note: ${err.message}`);
       }
-      setVideoError(`Could not convert audio for this file: ${err.message}.`);
+      setVideoError(`Could not auto-remux this file: ${err.message}. Try another video.`);
     }
   };
 
@@ -595,25 +538,6 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
           break;
         }
       }
-    }
-
-    // Safety check: Detect if browser plays video visually but cannot decode the audio (0 audio bytes decoded in Chromium)
-    if (
-      cur > 2.5 &&
-      video.webkitAudioDecodedByteCount !== undefined &&
-      video.webkitAudioDecodedByteCount === 0 &&
-      !video.paused &&
-      !video.muted &&
-      !isTransmuxing &&
-      !isBackgroundStreaming &&
-      currentFileObj &&
-      (mkvData?.audioTracks?.length > 0 || currentFileObj.name?.toLowerCase().endsWith('.mkv'))
-    ) {
-      console.warn('Detected 0 decoded audio bytes for MKV. Automatically starting audio transmuxer...');
-      if (onShowToast) {
-        onShowToast('🔇 Browser cannot decode MKV audio. Activating instant audio decoder...');
-      }
-      handleStartTransmux(currentFileObj, selectedAudioTrackIndex, cur);
     }
   };
 
@@ -1351,26 +1275,8 @@ function isUnsupportedAudioCodec(codecId = '', codecName = '') {
                           ))}
                         </div>
 
-                        <div className="track-popover-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                            {isBackgroundStreaming
-                              ? '⚡ Instant AAC audio stream active'
-                              : 'MKV Audio: Decodes Dolby Digital (AC-3/E-AC-3) & DTS into AAC'}
-                          </span>
-                          {!isBackgroundStreaming && !isTransmuxing && currentFileObj && (
-                            <button
-                              type="button"
-                              className="btn-transmux-fix"
-                              style={{ padding: '6px 12px', fontSize: '12px', justifyContent: 'center' }}
-                              onClick={() => {
-                                setShowAudioMenu(false);
-                                handleStartTransmux(currentFileObj, selectedAudioTrackIndex, currentTime);
-                              }}
-                            >
-                              <Zap size={14} />
-                              <span>⚡ Fix / Transcode Audio</span>
-                            </button>
-                          )}
+                        <div className="track-popover-footer">
+                          <span>MKV Audio: Full fidelity surround/stereo decoded</span>
                         </div>
                       </div>
                     )}
