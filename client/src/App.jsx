@@ -63,6 +63,16 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [controlMode, setControlMode] = useState('co-op');
 
+  // Theme State: Always defaults to 'default' on refresh/entry, never persisted across sessions
+  const [theme, setTheme] = useState('default');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.removeItem('meowvie-theme');
+    } catch (e) {}
+  }, [theme]);
+
   // Retro Cinema Transition State
   const [transitionData, setTransitionData] = useState(null);
   const [isTransitionComplete, setIsTransitionComplete] = useState(false);
@@ -597,7 +607,7 @@ export default function App() {
   const partnerPresent = users.some((u) => u.id !== currentUser?.id);
 
   return (
-    <div className="app-container">
+    <div className="app-container" data-theme={theme}>
       {/* Full App Asset Preloader (Google Fonts, Brand Logos, 12 Falling Emoji Heads) */}
       {showPreloader && (
         <AppPreloader
@@ -629,6 +639,8 @@ export default function App() {
             onToggleMic={handleToggleMic}
             onPttStart={handlePttStart}
             onPttEnd={handlePttEnd}
+            theme={theme}
+            onSetTheme={setTheme}
             className={transitionData ? 'cinema-header-enter' : ''}
           />
 

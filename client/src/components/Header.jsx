@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, Users, Shield, Radio, Copy, Upload, Mic, MicOff, HelpCircle, ChevronDown } from 'lucide-react';
+import { Check, Users, Shield, Radio, Copy, Upload, Mic, MicOff, HelpCircle, ChevronDown, Palette } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import titleImg from '../assets/title.png';
 
@@ -22,11 +22,16 @@ export default function Header({
   onToggleMic,
   onPttStart,
   onPttEnd,
+  theme = 'default',
+  onSetTheme,
   className = '',
 }) {
   const [copied, setCopied] = useState(false);
   const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState(false);
   const voiceMenuRef = useRef(null);
+
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef(null);
 
   useEffect(() => {
     if (!isVoiceMenuOpen) return;
@@ -43,6 +48,22 @@ export default function Header({
       document.removeEventListener('keydown', handleKey);
     };
   }, [isVoiceMenuOpen]);
+
+  useEffect(() => {
+    if (!isThemeMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+    const handleKey = (e) => { if (e.key === 'Escape') setIsThemeMenuOpen(false); };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [isThemeMenuOpen]);
 
   const handleCopyLink = () => {
     const shareUrl = `${window.location.origin}?room=${roomId}`;
@@ -262,6 +283,65 @@ export default function Header({
             <span>{controlMode === 'host-only' ? 'Host-Only' : 'Co-op'}</span>
           </div>
         )}
+
+        {/* Theme Selector Dropdown */}
+        {roomId && (() => {
+          const THEMES = [
+            { id: 'default', name: 'Classic', desc: 'Retro Diner & Warm Red' },
+            { id: 'horror', name: 'Horror', desc: 'Dark Black & Blood Red' },
+            { id: 'scifi', name: 'Sci-Fi', desc: 'Neon Cyan & Cyber Pink' },
+            { id: 'noir', name: 'Film Noir', desc: 'Monochrome Smoke & Silver' },
+            { id: 'western', name: 'Western', desc: 'Desert Amber & Rawhide' },
+            { id: 'fantasy', name: 'Fantasy', desc: 'Arcane Emerald & Gold' },
+            { id: 'romance', name: 'Romance', desc: 'Velvet Plum & Rose Petal' },
+          ];
+          const activeThemeObj = THEMES.find(t => t.id === theme) || THEMES[0];
+
+          return (
+            <div className="theme-pill" ref={themeMenuRef}>
+              <button
+                type="button"
+                className={`theme-dropdown-btn ${isThemeMenuOpen ? 'open' : ''}`}
+                onClick={() => setIsThemeMenuOpen(prev => !prev)}
+                title={`Theme: ${activeThemeObj.name} — click to switch`}
+                aria-label="Theme dropdown"
+                aria-haspopup="true"
+                aria-expanded={isThemeMenuOpen}
+              >
+                <Palette size={13} className="theme-icon" />
+                <span className="theme-label">Theme</span>
+                <span className="theme-val">{activeThemeObj.name}</span>
+                <ChevronDown size={11} className={`theme-chevron ${isThemeMenuOpen ? 'rotated' : ''}`} />
+              </button>
+
+              {isThemeMenuOpen && (
+                <div className="theme-popover" role="menu">
+                  <div className="theme-popover-header">Theme ({THEMES.length})</div>
+                  <div className="theme-popover-scroll">
+                    {THEMES.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className={`theme-popover-item ${theme === t.id ? 'selected' : ''}`}
+                        onClick={() => {
+                          onSetTheme?.(t.id);
+                          setIsThemeMenuOpen(false);
+                        }}
+                      >
+                        <span className={`theme-swatch ${t.id}`} />
+                        <div className="theme-text">
+                          <div className="theme-title">{t.name}</div>
+                          <div className="theme-desc">{t.desc}</div>
+                        </div>
+                        {theme === t.id && <Check size={13} className="theme-check" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* User avatar */}
         {currentUser && (

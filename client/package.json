@@ -11,6 +11,7 @@
   "dependencies": {
     "@mediabunny/aac-encoder": "^1.55.7",
     "@mediabunny/ac3": "^1.55.7",
+    "@mediabunny/dts": "^1.62.1",
     "fix-webm-duration": "^1.0.6",
     "lucide-react": "^0.475.0",
     "mediabunny": "^1.55.7",

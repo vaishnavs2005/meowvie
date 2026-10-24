@@ -66,6 +66,242 @@
   --transition-bounce: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* ==========================================================================
+   HORROR THEME ROOT VARIABLES (DARK BLACK & BLOOD RED COMBO)
+   ========================================================================== */
+:root[data-theme='horror'],
+[data-theme='horror'] {
+  /* Brand Colors */
+  --bg-cream: #080505;
+  --bg-cream-tint: #0e0606;
+  --bg-cream-dark: #170808;
+  --bg-card: #0d0606;
+  --bg-card-contrast: #140707;
+
+  --accent-red: #d92323;
+  --accent-red-hover: #ff3333;
+  --accent-red-active: #a81919;
+
+  --accent-mustard: #991b1b;
+  --accent-mustard-hover: #b91c1c;
+  --accent-mustard-light: #fca5a5;
+
+  --stroke-cream: #380a0a;
+  --text-dark: #f0e6e6;
+  --text-muted: #a67c7c;
+  --text-light: #ffffff;
+
+  --border-olive: #5e1111;
+  --border-subtle: #380a0a;
+
+  --status-connected: #ef4444;
+  --status-warning: #b91c1c;
+  --status-error: #ef4444;
+  --status-syncing: #dc2626;
+
+  /* Comic Shadows adapted for Dark Horror */
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 3px 3px 0px #000000;
+  --shadow-comic-lg: 5px 5px 0px #000000;
+  --shadow-comic-xl: 7px 7px 0px #000000;
+  --shadow-comic-hover: 1px 1px 0px #000000;
+}
+
+/* ==========================================================================
+   SCI-FI MOVIE THEME ROOT VARIABLES (NEON CYAN & CYBER PINK ON DEEP SPACE)
+   ========================================================================== */
+:root[data-theme='scifi'],
+[data-theme='scifi'] {
+  --bg-cream: #070a16;
+  --bg-cream-tint: #0c1124;
+  --bg-cream-dark: #121936;
+  --bg-card: #0b1021;
+  --bg-card-contrast: #131b38;
+
+  --accent-red: #00f0ff;
+  --accent-red-hover: #33f3ff;
+  --accent-red-active: #00bcd4;
+
+  --accent-mustard: #ff007f;
+  --accent-mustard-hover: #ff3399;
+  --accent-mustard-light: #ff80bf;
+
+  --stroke-cream: #053b47;
+  --text-dark: #e6f9ff;
+  --text-muted: #7ca5b8;
+  --text-light: #ffffff;
+
+  --border-olive: #008b9e;
+  --border-subtle: #0d4652;
+
+  --status-connected: #00f0ff;
+  --status-warning: #ffb703;
+  --status-error: #ff007f;
+  --status-syncing: #00f0ff;
+
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 3px 3px 0px #000000;
+  --shadow-comic-lg: 5px 5px 0px #000000;
+  --shadow-comic-xl: 7px 7px 0px #000000;
+  --shadow-comic-hover: 1px 1px 0px #000000;
+}
+
+/* ==========================================================================
+   FILM NOIR MOVIE THEME ROOT VARIABLES (MONOCHROME SMOKE & SILVER)
+   ========================================================================== */
+:root[data-theme='noir'],
+[data-theme='noir'] {
+  --bg-cream: #0d0d0f;
+  --bg-cream-tint: #141418;
+  --bg-cream-dark: #1e1e24;
+  --bg-card: #121216;
+  --bg-card-contrast: #1c1c22;
+
+  --accent-red: #e2e8f0;
+  --accent-red-hover: #ffffff;
+  --accent-red-active: #cbd5e1;
+
+  --accent-mustard: #94a3b8;
+  --accent-mustard-hover: #cbd5e1;
+  --accent-mustard-light: #f1f5f9;
+
+  --stroke-cream: #27272a;
+  --text-dark: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #ffffff;
+
+  --border-olive: #475569;
+  --border-subtle: #27272a;
+
+  --status-connected: #cbd5e1;
+  --status-warning: #94a3b8;
+  --status-error: #ef4444;
+  --status-syncing: #e2e8f0;
+
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 3px 3px 0px #000000;
+  --shadow-comic-lg: 5px 5px 0px #000000;
+  --shadow-comic-xl: 7px 7px 0px #000000;
+  --shadow-comic-hover: 1px 1px 0px #000000;
+}
+
+/* ==========================================================================
+   WESTERN MOVIE THEME ROOT VARIABLES (DESERT AMBER & RAWHIDE RUST)
+   ========================================================================== */
+:root[data-theme='western'],
+[data-theme='western'] {
+  --bg-cream: #160e0a;
+  --bg-cream-tint: #1e140e;
+  --bg-cream-dark: #2a1c14;
+  --bg-card: #1b120c;
+  --bg-card-contrast: #271a12;
+
+  --accent-red: #d97706;
+  --accent-red-hover: #f59e0b;
+  --accent-red-active: #b45309;
+
+  --accent-mustard: #ea580c;
+  --accent-mustard-hover: #f97316;
+  --accent-mustard-light: #fdba74;
+
+  --stroke-cream: #3d2315;
+  --text-dark: #fef3c7;
+  --text-muted: #b8977e;
+  --text-light: #ffffff;
+
+  --border-olive: #7c2d12;
+  --border-subtle: #451a03;
+
+  --status-connected: #d97706;
+  --status-warning: #f59e0b;
+  --status-error: #dc2626;
+  --status-syncing: #ea580c;
+
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 3px 3px 0px #000000;
+  --shadow-comic-lg: 5px 5px 0px #000000;
+  --shadow-comic-xl: 7px 7px 0px #000000;
+  --shadow-comic-hover: 1px 1px 0px #000000;
+}
+
+/* ==========================================================================
+   FANTASY MOVIE THEME ROOT VARIABLES (ARCANE EMERALD & RUNE GOLD)
+   ========================================================================== */
+:root[data-theme='fantasy'],
+[data-theme='fantasy'] {
+  --bg-cream: #060c0f;
+  --bg-cream-tint: #0a1419;
+  --bg-cream-dark: #0f1e26;
+  --bg-card: #081116;
+  --bg-card-contrast: #10212a;
+
+  --accent-red: #10b981;
+  --accent-red-hover: #34d399;
+  --accent-red-active: #059669;
+
+  --accent-mustard: #fbbf24;
+  --accent-mustard-hover: #fcd34d;
+  --accent-mustard-light: #fef08a;
+
+  --stroke-cream: #064e3b;
+  --text-dark: #ecfdf5;
+  --text-muted: #6ee7b7;
+  --text-light: #ffffff;
+
+  --border-olive: #047857;
+  --border-subtle: #064e3b;
+
+  --status-connected: #10b981;
+  --status-warning: #fbbf24;
+  --status-error: #ef4444;
+  --status-syncing: #10b981;
+
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 3px 3px 0px #000000;
+  --shadow-comic-lg: 5px 5px 0px #000000;
+  --shadow-comic-xl: 7px 7px 0px #000000;
+  --shadow-comic-hover: 1px 1px 0px #000000;
+}
+
+/* ==========================================================================
+   ROMANCE MOVIE THEME ROOT VARIABLES (VELVET PLUM & ROSE PETAL)
+   ========================================================================== */
+:root[data-theme='romance'],
+[data-theme='romance'] {
+  --bg-cream: #130912;
+  --bg-cream-tint: #1c0e1a;
+  --bg-cream-dark: #271425;
+  --bg-card: #180b16;
+  --bg-card-contrast: #241122;
+
+  --accent-red: #e11d48;
+  --accent-red-hover: #f43f5e;
+  --accent-red-active: #be123c;
+
+  --accent-mustard: #fb7185;
+  --accent-mustard-hover: #fda4af;
+  --accent-mustard-light: #ffe4e6;
+
+  --stroke-cream: #4c0519;
+  --text-dark: #fff1f2;
+  --text-muted: #fda4af;
+  --text-light: #ffffff;
+
+  --border-olive: #9f1239;
+  --border-subtle: #4c0519;
+
+  --status-connected: #e11d48;
+  --status-warning: #fb7185;
+  --status-error: #e11d48;
+  --status-syncing: #f43f5e;
+
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 3px 3px 0px #000000;
+  --shadow-comic-lg: 5px 5px 0px #000000;
+  --shadow-comic-xl: 7px 7px 0px #000000;
+  --shadow-comic-hover: 1px 1px 0px #000000;
+}
+
 /* Reset & Global */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -747,6 +983,173 @@ body {
   background: var(--bg-card);
   color: var(--text-dark);
   box-shadow: var(--shadow-comic-sm);
+}
+
+/* ── Theme dropdown selector ────────────────────────────────────────────── */
+.theme-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+  border-radius: var(--radius-full);
+  padding: 3px 5px;
+  box-shadow: var(--shadow-comic-sm);
+}
+
+.theme-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  line-height: 1;
+  transition: background var(--transition-fast);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  outline: none;
+}
+.theme-dropdown-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.theme-dropdown-btn.open {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.theme-icon {
+  color: var(--accent-red);
+  flex-shrink: 0;
+}
+
+.theme-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.theme-val {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--accent-red);
+  letter-spacing: 0.04em;
+}
+
+.theme-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+.theme-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.theme-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: var(--bg-cream-tint);
+  border: 2.5px solid var(--border-olive);
+  border-radius: 14px;
+  box-shadow: var(--shadow-comic);
+  z-index: 200;
+  overflow: hidden;
+  animation: popover-in 0.15s ease;
+}
+
+.theme-popover-header {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 14px 6px;
+  border-bottom: 1.5px solid var(--border-subtle);
+}
+
+.theme-popover-scroll {
+  max-height: 285px;
+  overflow-y: auto;
+}
+
+.theme-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+.theme-popover-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.theme-popover-item.selected {
+  background: rgba(232, 64, 44, 0.08);
+}
+
+.theme-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #1A1A1A;
+  flex-shrink: 0;
+}
+.theme-swatch.default {
+  background: linear-gradient(135deg, #F0DFC9 50%, #E8402C 50%);
+}
+.theme-swatch.horror {
+  background: linear-gradient(135deg, #0a0505 50%, #d92323 50%);
+  border-color: #5e1111;
+}
+.theme-swatch.scifi {
+  background: linear-gradient(135deg, #070a16 50%, #00f0ff 50%);
+  border-color: #ff007f;
+}
+.theme-swatch.noir {
+  background: linear-gradient(135deg, #0d0d0f 50%, #e2e8f0 50%);
+  border-color: #64748b;
+}
+.theme-swatch.western {
+  background: linear-gradient(135deg, #160e0a 50%, #d97706 50%);
+  border-color: #ea580c;
+}
+.theme-swatch.fantasy {
+  background: linear-gradient(135deg, #060c0f 50%, #10b981 50%);
+  border-color: #fbbf24;
+}
+.theme-swatch.romance {
+  background: linear-gradient(135deg, #130912 50%, #e11d48 50%);
+  border-color: #fb7185;
+}
+
+.theme-text {
+  flex: 1;
+}
+.theme-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.theme-desc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.theme-check {
+  color: var(--accent-red);
+  flex-shrink: 0;
 }
 
 /* ── User avatar + name ─────────────────────────────────────────────────── */
@@ -1730,7 +2133,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
 }
 
 .fs-empty-state {
@@ -1787,7 +2190,7 @@ body {
 .fs-chat-input {
   flex: 1;
   min-width: 0;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-full);
   padding: 6px 12px;
@@ -4088,3 +4491,1157 @@ body {
     opacity: 1;
   }
 }
+
+/* ==========================================================================
+   HORROR THEME COMPONENT OVERRIDES (BLACK & DARK RED COMBO)
+   ========================================================================== */
+
+:root[data-theme='horror'] body,
+[data-theme='horror'].app-container {
+  background-color: #080505;
+  background-image: 
+    radial-gradient(#1c0707 1.5px, transparent 1.5px),
+    radial-gradient(rgba(185, 28, 28, 0.08) 1.5px, transparent 1.5px);
+  border-color: #5e1111;
+  color: var(--text-dark);
+}
+
+[data-theme='horror'] ::-webkit-scrollbar-track {
+  background: #0d0606;
+}
+[data-theme='horror'] ::-webkit-scrollbar-thumb {
+  background: #5e1111;
+  border: 2px solid #080505;
+}
+[data-theme='horror'] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-red);
+}
+
+/* ── Header in Horror Theme ─────────────────────────────────────────────── */
+[data-theme='horror'] .app-header {
+  background: #080505;
+  border-bottom: 2px solid #5e1111;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme='horror'] .brand-logo-img {
+  filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.5)) drop-shadow(2px 2px 0px #000000);
+}
+
+[data-theme='horror'] .brand-title-img-hdr {
+  filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.7)) drop-shadow(2px 2px 0px #000000) !important;
+}
+
+[data-theme='horror'] .hdr-info-btn {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+  color: #ff4d4d;
+  box-shadow: 1px 1px 0px #000000;
+}
+[data-theme='horror'] .hdr-info-btn:hover {
+  background: #1a0808;
+  color: #ff6666;
+  border-color: #8b1010;
+}
+
+[data-theme='horror'] .room-pill {
+  background: #0a0505;
+  border: 2px solid #380a0a;
+  outline: 2px solid #5e1111;
+  color: #f0e6e6;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .room-label {
+  color: #d92323;
+}
+[data-theme='horror'] .room-code {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .copy-btn {
+  color: #a67c7c;
+}
+[data-theme='horror'] .copy-btn:hover {
+  color: #ff4d4d;
+}
+
+[data-theme='horror'] .sync-badge {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+}
+[data-theme='horror'] .sync-badge-text {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .pulse-dot.connected {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+  border-color: #000000;
+}
+[data-theme='horror'] .pulse-dot.waiting {
+  background: #7f1d1d;
+  border-color: #000000;
+}
+
+[data-theme='horror'] .hdr-change-video-btn {
+  background: #0a0505;
+  border: 2px solid #380a0a;
+  outline: 2px solid #5e1111;
+  color: #ff4d4d;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .hdr-change-video-btn:hover {
+  background: #170909;
+  border-color: #5e1111;
+  outline-color: #8b1010;
+  color: #ff6666;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+[data-theme='horror'] .voice-pill {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .voice-mic-btn.voice-mic-idle {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .voice-mic-btn.voice-mic-idle:hover {
+  background: rgba(220, 38, 38, 0.15);
+  color: #ff6666;
+}
+[data-theme='horror'] .voice-mic-btn.voice-mic-idle .mic-icon {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .voice-divider {
+  background: #5e1111;
+}
+[data-theme='horror'] .voice-mode-tag {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .voice-chevron {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .ptt-hint {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid #5e1111;
+  color: #ff4d4d;
+}
+[data-theme='horror'] .voice-popover {
+  background: #0d0606;
+  border: 2.5px solid #5e1111;
+  box-shadow: 4px 4px 0px #000000;
+}
+[data-theme='horror'] .voice-popover-header {
+  color: #a67c7c;
+  border-bottom-color: #380a0a;
+}
+[data-theme='horror'] .voice-popover-item:hover {
+  background: rgba(220, 38, 38, 0.12);
+}
+[data-theme='horror'] .voice-popover-item.selected {
+  background: rgba(220, 38, 38, 0.22);
+}
+[data-theme='horror'] .vp-title {
+  color: #f0e6e6;
+}
+[data-theme='horror'] .vp-desc {
+  color: #a67c7c;
+}
+[data-theme='horror'] .vp-kbd {
+  background: #170909;
+  border-color: #5e1111;
+  color: #ff4d4d;
+}
+
+[data-theme='horror'] .mode-toggle {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .mode-btn {
+  color: #a67c7c;
+}
+[data-theme='horror'] .mode-btn.active {
+  background: #991b1b;
+  color: #ffffff;
+  border: 1.5px solid #380a0a;
+  outline: 1.5px solid #000000;
+  box-shadow: 1px 1px 0px #000000;
+}
+[data-theme='horror'] .mode-badge-guest {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+  color: #f0e6e6;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='horror'] .theme-pill {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .theme-dropdown-btn:hover {
+  background: rgba(220, 38, 38, 0.12);
+}
+[data-theme='horror'] .theme-label {
+  color: #a67c7c;
+}
+[data-theme='horror'] .theme-val {
+  color: #ff4d4d;
+}
+[data-theme='horror'] .theme-chevron {
+  color: #a67c7c;
+}
+[data-theme='horror'] .theme-popover {
+  background: #0d0606;
+  border: 2px solid #5e1111;
+  box-shadow: 4px 4px 0px #000000;
+}
+[data-theme='horror'] .theme-popover-header {
+  color: #a67c7c;
+  border-bottom-color: #380a0a;
+}
+[data-theme='horror'] .theme-popover-item:hover {
+  background: rgba(220, 38, 38, 0.12);
+}
+[data-theme='horror'] .theme-popover-item.selected {
+  background: rgba(220, 38, 38, 0.22);
+}
+[data-theme='horror'] .theme-title {
+  color: #f0e6e6;
+}
+[data-theme='horror'] .theme-desc {
+  color: #a67c7c;
+}
+[data-theme='horror'] .theme-check {
+  color: #ff4d4d;
+}
+
+[data-theme='horror'] .hdr-user-avatar {
+  background: #170909;
+  border: 2px solid #5e1111;
+  outline: 1.5px solid #000000;
+  color: #f0e6e6;
+  box-shadow: 1px 1px 0px #000000;
+}
+[data-theme='horror'] .hdr-user-name {
+  color: #f0e6e6;
+}
+[data-theme='horror'] .hdr-user-host {
+  background: #991b1b;
+  color: #ffffff;
+  border: 1.5px solid #380a0a;
+  outline: 1px solid #000000;
+}
+
+/* ── Cinema Stage & Video Container ─────────────────────────────────────── */
+[data-theme='horror'] .main-workspace {
+  background: #080505;
+}
+
+[data-theme='horror'] .cinema-stage {
+  background: #080505;
+}
+
+[data-theme='horror'] .ambient-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(185, 28, 28, 0.28) 0%, rgba(94, 17, 17, 0.12) 50%, transparent 75%);
+}
+
+[data-theme='horror'] .video-container {
+  background: #050303;
+  border: 2px solid #5e1111;
+  box-shadow: 0 0 20px rgba(94, 17, 17, 0.25);
+}
+
+[data-theme='horror'] .dropzone-icon {
+  background: #140505;
+  border: 2px solid #5e1111;
+  outline: 2px solid #290606;
+  color: #d92323;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+[data-theme='horror'] .dropzone-title {
+  color: #d92323;
+  -webkit-text-stroke: 1px #380a0a;
+  text-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='horror'] .dropzone-desc {
+  color: #a67c7c;
+}
+[data-theme='horror'] .dropzone-desc strong {
+  color: #ff4d4d;
+}
+
+[data-theme='horror'] .btn-file-select {
+  background-color: #140505;
+  color: #ff4d4d;
+  border: 2.5px solid #851818;
+  outline: 2px solid #380a0a;
+  box-shadow: 3px 3px 0px #000000;
+}
+[data-theme='horror'] .btn-file-select:hover {
+  background-color: #240909;
+  border-color: #b91c1c;
+  color: #ff6666;
+  box-shadow: 4px 4px 0px #000000;
+}
+
+[data-theme='horror'] .dropzone-demo-btn {
+  background: #0a0505;
+  color: #f0e6e6;
+  border-color: #5e1111;
+  outline-color: #000000;
+}
+[data-theme='horror'] .dropzone-demo-btn:hover {
+  background: #170909;
+  color: #ff4d4d;
+}
+
+/* ── Stage Footer & Resync ──────────────────────────────────────────────── */
+[data-theme='horror'] .stage-footer {
+  background: #0a0505;
+  border: 2px solid #5e1111;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='horror'] .sync-status-waiting,
+[data-theme='horror'] .sync-status-text {
+  color: #ff4d4d;
+}
+
+[data-theme='horror'] .partner-file-badge {
+  background: #120606;
+  border: 1.5px solid #380a0a;
+  color: #f0e6e6;
+}
+
+[data-theme='horror'] .resync-btn {
+  background: #140505;
+  color: #ff4d4d;
+  border: 2px solid #851818;
+  outline: 2px solid #380a0a;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .resync-btn:hover {
+  background: #240909;
+  border-color: #b91c1c;
+  color: #ff6666;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+/* ── Live Chat Sidebar in Horror Theme ──────────────────────────────────── */
+[data-theme='horror'] .chat-sidebar {
+  background: #080505;
+  border-left: 2.5px solid #5e1111;
+}
+
+[data-theme='horror'] .chat-header {
+  background: #0a0505;
+  border-bottom: 2px solid #5e1111;
+}
+
+[data-theme='horror'] .chat-header-title {
+  color: #d92323;
+  -webkit-text-stroke: 1px #380a0a;
+  text-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='horror'] .chat-messages-container {
+  background: #080505;
+}
+
+[data-theme='horror'] .empty-chat-title {
+  color: #ff4d4d;
+  border-bottom: 2.5px solid #8b1010;
+}
+
+[data-theme='horror'] .empty-chat-sub {
+  color: #a67c7c;
+}
+
+[data-theme='horror'] .message-meta {
+  color: #a67c7c;
+}
+
+[data-theme='horror'] .message-row.mine .message-bubble {
+  background: #4a0f0f;
+  color: #ffffff;
+  border: 2px solid #7a1818;
+  outline: 2px solid #1a0404;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='horror'] .message-row.theirs .message-bubble {
+  background: #140808;
+  color: #f0e6e6;
+  border: 2px solid #4a0e0e;
+  outline: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+[data-theme='horror'] .message-timecode-tag {
+  background: #8b1010;
+  color: #ffffff;
+  border: 1.5px solid #4a0e0e;
+  outline: 1.5px solid #000000;
+}
+
+[data-theme='horror'] .chat-reaction-bar {
+  background: #0a0505;
+  border-top: 2px solid #380a0a;
+  border-bottom: 2px solid #380a0a;
+}
+
+[data-theme='horror'] .chat-input-bar {
+  background: #0a0505;
+  border-top: 2px solid #5e1111;
+}
+
+[data-theme='horror'] .chat-input {
+  background: #050202;
+  border: 1.5px solid #4a0e0e;
+  color: #f0e6e6;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+[data-theme='horror'] .chat-input::placeholder {
+  color: #734a4a;
+}
+[data-theme='horror'] .chat-input:focus {
+  border-color: #d92323;
+  box-shadow: 0 0 0 2px #5e1111;
+}
+
+[data-theme='horror'] .chat-send-btn {
+  background: #8b1010;
+  color: #ffffff;
+  border: 2px solid #4a0e0e;
+  outline: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+}
+[data-theme='horror'] .chat-send-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+[data-theme='horror'] .chat-send-btn:disabled {
+  background: #2a0b0b;
+  color: #552222;
+  border-color: #380a0a;
+  opacity: 0.6;
+}
+
+/* ── Player Controls (Playing Video) ────────────────────────────────────── */
+[data-theme='horror'] .player-top-bar {
+  background: linear-gradient(to bottom, rgba(10, 4, 4, 0.95) 0%, rgba(10, 4, 4, 0.6) 65%, transparent 100%);
+}
+[data-theme='horror'] .player-file-info {
+  background: rgba(14, 5, 5, 0.9);
+  border-color: #5e1111;
+  outline-color: #000000;
+}
+[data-theme='horror'] .player-track-pill {
+  background: rgba(14, 5, 5, 0.9);
+  border-color: #5e1111;
+  outline-color: #000000;
+}
+[data-theme='horror'] .cinema-controls {
+  background: linear-gradient(to top, rgba(10, 4, 4, 0.98) 0%, rgba(10, 4, 4, 0.75) 60%, transparent 100%);
+}
+[data-theme='horror'] .seeker-track {
+  background: rgba(60, 12, 12, 0.7);
+}
+[data-theme='horror'] .seeker-played {
+  background: #d92323;
+}
+[data-theme='horror'] .seeker-buffer {
+  background: rgba(185, 28, 28, 0.35);
+}
+[data-theme='horror'] .ctrl-btn {
+  background: #140505;
+  border-color: #5e1111;
+  outline-color: #000000;
+  color: #f0e6e6;
+}
+[data-theme='horror'] .ctrl-btn:hover {
+  background: #240909;
+  border-color: #8b1010;
+  color: #ff6666;
+}
+[data-theme='horror'] .ctrl-btn.play-pause-btn {
+  background: #8b1010;
+  border-color: #4a0e0e;
+  outline-color: #000000;
+  color: #ffffff;
+}
+[data-theme='horror'] .ctrl-btn.play-pause-btn:hover {
+  background: #b91c1c;
+}
+[data-theme='horror'] .time-display {
+  background: #140505;
+  border-color: #5e1111;
+  outline-color: #000000;
+  color: #a67c7c;
+}
+[data-theme='horror'] .time-display .time-current {
+  color: #f0e6e6;
+}
+[data-theme='horror'] .volume-container {
+  background: #140505;
+  border-color: #5e1111;
+  outline-color: #000000;
+}
+[data-theme='horror'] .track-popover-menu {
+  background: #0d0606;
+  border-color: #5e1111;
+  color: #f0e6e6;
+}
+[data-theme='horror'] .track-popover-header {
+  background: #0a0505;
+  border-color: #380a0a;
+  color: #f0e6e6;
+}
+[data-theme='horror'] .track-option-item {
+  background: #140808;
+  border-color: #380a0a;
+}
+[data-theme='horror'] .track-option-item.selected {
+  background: #2a0b0b;
+  border-color: #8b1010;
+}
+[data-theme='horror'] .track-option-title {
+  color: #f0e6e6;
+}
+
+/* ── Modals, Overlays & Toasts ──────────────────────────────────────────── */
+[data-theme='horror'] .toast {
+  background: #0d0606;
+  border: 2px solid #5e1111;
+  color: #f0e6e6;
+  box-shadow: 3px 3px 0px #000000;
+}
+[data-theme='horror'] .walkie-talkie-indicator {
+  background: #0d0606;
+  border-color: #5e1111;
+  color: #f0e6e6;
+}
+[data-theme='horror'] .insecure-context-banner {
+  background: #170909;
+  border-color: #8b1010;
+  color: #f0e6e6;
+}
+[data-theme='horror'] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+[data-theme='horror'] .info-modal-card,
+[data-theme='horror'] .modal-card {
+  background: #0d0606;
+  border: 3px solid #5e1111;
+  color: #f0e6e6;
+  box-shadow: 6px 6px 0px #000000;
+}
+[data-theme='horror'] .info-modal-header,
+[data-theme='horror'] .info-tab-bar {
+  background: #0a0505;
+  border-color: #380a0a;
+}
+[data-theme='horror'] .info-tab-btn {
+  color: #a67c7c;
+}
+[data-theme='horror'] .info-tab-btn.active {
+  background: #8b1010;
+  color: #ffffff;
+}
+[data-theme='horror'] .info-step-card,
+[data-theme='horror'] .info-spec-item {
+  background: #140808;
+  border-color: #380a0a;
+  color: #f0e6e6;
+}
+[data-theme='horror'] .info-step-num {
+  background: #8b1010;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   FULLSCREEN CHAT OVERLAY THEME FIXES (FIXES BLINDING WHITE IN DARK THEMES)
+   ========================================================================== */
+[data-theme='horror'] .fullscreen-chat-box,
+[data-theme='scifi'] .fullscreen-chat-box,
+[data-theme='noir'] .fullscreen-chat-box,
+[data-theme='western'] .fullscreen-chat-box,
+[data-theme='fantasy'] .fullscreen-chat-box,
+[data-theme='romance'] .fullscreen-chat-box {
+  background: var(--bg-card) !important;
+  border: 3px solid var(--border-olive) !important;
+  outline: 2px solid var(--stroke-cream) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.95), var(--shadow-comic-xl) !important;
+}
+
+[data-theme='horror'] .fs-chat-header,
+[data-theme='scifi'] .fs-chat-header,
+[data-theme='noir'] .fs-chat-header,
+[data-theme='western'] .fs-chat-header,
+[data-theme='fantasy'] .fs-chat-header,
+[data-theme='romance'] .fs-chat-header {
+  background: var(--bg-cream-tint) !important;
+  border-bottom: 2px solid var(--border-olive) !important;
+}
+
+[data-theme='horror'] .fs-chat-title,
+[data-theme='scifi'] .fs-chat-title,
+[data-theme='noir'] .fs-chat-title,
+[data-theme='western'] .fs-chat-title,
+[data-theme='fantasy'] .fs-chat-title,
+[data-theme='romance'] .fs-chat-title {
+  color: var(--accent-red) !important;
+}
+
+[data-theme='horror'] .fs-chat-count,
+[data-theme='scifi'] .fs-chat-count,
+[data-theme='noir'] .fs-chat-count,
+[data-theme='western'] .fs-chat-count,
+[data-theme='fantasy'] .fs-chat-count,
+[data-theme='romance'] .fs-chat-count {
+  color: var(--text-muted) !important;
+}
+
+[data-theme='horror'] .fs-chat-kbd-hint,
+[data-theme='scifi'] .fs-chat-kbd-hint,
+[data-theme='noir'] .fs-chat-kbd-hint,
+[data-theme='western'] .fs-chat-kbd-hint,
+[data-theme='fantasy'] .fs-chat-kbd-hint,
+[data-theme='romance'] .fs-chat-kbd-hint {
+  background: var(--bg-card-contrast) !important;
+  border: 1.5px solid var(--border-olive) !important;
+  color: var(--text-dark) !important;
+}
+
+[data-theme='horror'] .fs-chat-close-btn,
+[data-theme='scifi'] .fs-chat-close-btn,
+[data-theme='noir'] .fs-chat-close-btn,
+[data-theme='western'] .fs-chat-close-btn,
+[data-theme='fantasy'] .fs-chat-close-btn,
+[data-theme='romance'] .fs-chat-close-btn {
+  color: var(--text-dark) !important;
+}
+
+[data-theme='horror'] .fs-chat-close-btn:hover,
+[data-theme='scifi'] .fs-chat-close-btn:hover,
+[data-theme='noir'] .fs-chat-close-btn:hover,
+[data-theme='western'] .fs-chat-close-btn:hover,
+[data-theme='fantasy'] .fs-chat-close-btn:hover,
+[data-theme='romance'] .fs-chat-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--accent-red) !important;
+}
+
+[data-theme='horror'] .fs-chat-messages,
+[data-theme='scifi'] .fs-chat-messages,
+[data-theme='noir'] .fs-chat-messages,
+[data-theme='western'] .fs-chat-messages,
+[data-theme='fantasy'] .fs-chat-messages,
+[data-theme='romance'] .fs-chat-messages {
+  background: var(--bg-cream) !important;
+}
+
+[data-theme='horror'] .fs-empty-state p,
+[data-theme='scifi'] .fs-empty-state p,
+[data-theme='noir'] .fs-empty-state p,
+[data-theme='western'] .fs-empty-state p,
+[data-theme='fantasy'] .fs-empty-state p,
+[data-theme='romance'] .fs-empty-state p {
+  color: var(--text-muted) !important;
+}
+
+[data-theme='horror'] .fs-chat-reactions,
+[data-theme='scifi'] .fs-chat-reactions,
+[data-theme='noir'] .fs-chat-reactions,
+[data-theme='western'] .fs-chat-reactions,
+[data-theme='fantasy'] .fs-chat-reactions,
+[data-theme='romance'] .fs-chat-reactions {
+  background: var(--bg-cream-tint) !important;
+  border-top: 1.5px solid var(--border-subtle) !important;
+}
+
+[data-theme='horror'] .fs-chat-input-bar,
+[data-theme='scifi'] .fs-chat-input-bar,
+[data-theme='noir'] .fs-chat-input-bar,
+[data-theme='western'] .fs-chat-input-bar,
+[data-theme='fantasy'] .fs-chat-input-bar,
+[data-theme='romance'] .fs-chat-input-bar {
+  background: var(--bg-card) !important;
+  border-top: 2px solid var(--border-olive) !important;
+}
+
+[data-theme='horror'] .fs-timecode-btn,
+[data-theme='scifi'] .fs-timecode-btn,
+[data-theme='noir'] .fs-timecode-btn,
+[data-theme='western'] .fs-timecode-btn,
+[data-theme='fantasy'] .fs-timecode-btn,
+[data-theme='romance'] .fs-timecode-btn {
+  background: var(--bg-card-contrast) !important;
+  border: 1.5px solid var(--border-olive) !important;
+  color: var(--accent-red) !important;
+}
+
+[data-theme='horror'] .fs-chat-input,
+[data-theme='scifi'] .fs-chat-input,
+[data-theme='noir'] .fs-chat-input,
+[data-theme='western'] .fs-chat-input,
+[data-theme='fantasy'] .fs-chat-input,
+[data-theme='romance'] .fs-chat-input {
+  background: var(--bg-cream) !important;
+  border: 1.5px solid var(--border-olive) !important;
+  color: var(--text-dark) !important;
+}
+
+[data-theme='horror'] .fs-chat-input::placeholder,
+[data-theme='scifi'] .fs-chat-input::placeholder,
+[data-theme='noir'] .fs-chat-input::placeholder,
+[data-theme='western'] .fs-chat-input::placeholder,
+[data-theme='fantasy'] .fs-chat-input::placeholder,
+[data-theme='romance'] .fs-chat-input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.8 !important;
+}
+
+[data-theme='horror'] .fs-chat-input:focus,
+[data-theme='scifi'] .fs-chat-input:focus,
+[data-theme='noir'] .fs-chat-input:focus,
+[data-theme='western'] .fs-chat-input:focus,
+[data-theme='fantasy'] .fs-chat-input:focus,
+[data-theme='romance'] .fs-chat-input:focus {
+  border-color: var(--accent-red) !important;
+  box-shadow: 0 0 0 2px var(--border-olive) !important;
+}
+
+[data-theme='horror'] .fs-send-btn,
+[data-theme='scifi'] .fs-send-btn,
+[data-theme='noir'] .fs-send-btn,
+[data-theme='western'] .fs-send-btn,
+[data-theme='fantasy'] .fs-send-btn,
+[data-theme='romance'] .fs-send-btn {
+  background: var(--accent-red) !important;
+  color: var(--bg-cream) !important;
+  border: 2px solid var(--border-olive) !important;
+  outline: 1.5px solid #000 !important;
+}
+
+[data-theme='horror'] .fullscreen-chat-btn,
+[data-theme='scifi'] .fullscreen-chat-btn,
+[data-theme='noir'] .fullscreen-chat-btn,
+[data-theme='western'] .fullscreen-chat-btn,
+[data-theme='fantasy'] .fullscreen-chat-btn,
+[data-theme='romance'] .fullscreen-chat-btn {
+  background: var(--accent-red) !important;
+  color: var(--bg-cream) !important;
+  border: 3px solid var(--stroke-cream) !important;
+  outline: 2px solid var(--border-olive) !important;
+  box-shadow: 4px 4px 0px #000 !important;
+}
+
+[data-theme='horror'] .fullscreen-chat-btn.active,
+[data-theme='scifi'] .fullscreen-chat-btn.active,
+[data-theme='noir'] .fullscreen-chat-btn.active,
+[data-theme='western'] .fullscreen-chat-btn.active,
+[data-theme='fantasy'] .fullscreen-chat-btn.active,
+[data-theme='romance'] .fullscreen-chat-btn.active {
+  background: var(--accent-mustard) !important;
+  color: #000 !important;
+}
+
+/* ==========================================================================
+   GENERIC MOVIE GENRE COMPONENT STYLING FOR ALL DARK THEMES
+   ========================================================================== */
+:root[data-theme='scifi'] body, [data-theme='scifi'].app-container,
+:root[data-theme='noir'] body, [data-theme='noir'].app-container,
+:root[data-theme='western'] body, [data-theme='western'].app-container,
+:root[data-theme='fantasy'] body, [data-theme='fantasy'].app-container,
+:root[data-theme='romance'] body, [data-theme='romance'].app-container {
+  background-color: var(--bg-cream);
+  background-image: 
+    radial-gradient(var(--bg-cream-dark) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px);
+  border-color: var(--border-olive);
+  color: var(--text-dark);
+}
+
+[data-theme='scifi'] ::-webkit-scrollbar-track,
+[data-theme='noir'] ::-webkit-scrollbar-track,
+[data-theme='western'] ::-webkit-scrollbar-track,
+[data-theme='fantasy'] ::-webkit-scrollbar-track,
+[data-theme='romance'] ::-webkit-scrollbar-track {
+  background: var(--bg-cream);
+}
+
+[data-theme='scifi'] ::-webkit-scrollbar-thumb,
+[data-theme='noir'] ::-webkit-scrollbar-thumb,
+[data-theme='western'] ::-webkit-scrollbar-thumb,
+[data-theme='fantasy'] ::-webkit-scrollbar-thumb,
+[data-theme='romance'] ::-webkit-scrollbar-thumb {
+  background: var(--border-olive);
+  border: 2px solid var(--bg-cream);
+}
+
+/* ── Header in Movie Themes ─────────────────────────────────────────────── */
+[data-theme='scifi'] .app-header,
+[data-theme='noir'] .app-header,
+[data-theme='western'] .app-header,
+[data-theme='fantasy'] .app-header,
+[data-theme='romance'] .app-header {
+  background: var(--bg-cream);
+  border-bottom: 2px solid var(--border-olive);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme='scifi'] .brand-logo-img { filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6)) drop-shadow(2px 2px 0px #000); }
+[data-theme='noir'] .brand-logo-img { filter: grayscale(1) drop-shadow(2px 2px 0px #000); }
+[data-theme='western'] .brand-logo-img { filter: sepia(0.6) drop-shadow(2px 2px 0px #000); }
+[data-theme='fantasy'] .brand-logo-img { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)) drop-shadow(2px 2px 0px #000); }
+[data-theme='romance'] .brand-logo-img { filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.6)) drop-shadow(2px 2px 0px #000); }
+
+[data-theme='scifi'] .brand-title-img-hdr { filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.7)) drop-shadow(2px 2px 0px #000) !important; }
+[data-theme='noir'] .brand-title-img-hdr { filter: grayscale(1) drop-shadow(2px 2px 0px #000) !important; }
+[data-theme='western'] .brand-title-img-hdr { filter: sepia(0.7) drop-shadow(2px 2px 0px #000) !important; }
+[data-theme='fantasy'] .brand-title-img-hdr { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.7)) drop-shadow(2px 2px 0px #000) !important; }
+[data-theme='romance'] .brand-title-img-hdr { filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.7)) drop-shadow(2px 2px 0px #000) !important; }
+
+[data-theme='scifi'] .hdr-info-btn,
+[data-theme='noir'] .hdr-info-btn,
+[data-theme='western'] .hdr-info-btn,
+[data-theme='fantasy'] .hdr-info-btn,
+[data-theme='romance'] .hdr-info-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+  color: var(--accent-red);
+}
+
+[data-theme='scifi'] .room-pill,
+[data-theme='noir'] .room-pill,
+[data-theme='western'] .room-pill,
+[data-theme='fantasy'] .room-pill,
+[data-theme='romance'] .room-pill {
+  background: var(--bg-card);
+  border: 2px solid var(--stroke-cream);
+  outline: 2px solid var(--border-olive);
+  color: var(--text-dark);
+}
+[data-theme='scifi'] .room-label,
+[data-theme='noir'] .room-label,
+[data-theme='western'] .room-label,
+[data-theme='fantasy'] .room-label,
+[data-theme='romance'] .room-label {
+  color: var(--accent-red);
+}
+[data-theme='scifi'] .room-code,
+[data-theme='noir'] .room-code,
+[data-theme='western'] .room-code,
+[data-theme='fantasy'] .room-code,
+[data-theme='romance'] .room-code {
+  color: var(--text-dark);
+}
+
+[data-theme='scifi'] .sync-badge,
+[data-theme='noir'] .sync-badge,
+[data-theme='western'] .sync-badge,
+[data-theme='fantasy'] .sync-badge,
+[data-theme='romance'] .sync-badge {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+}
+[data-theme='scifi'] .sync-badge-text,
+[data-theme='noir'] .sync-badge-text,
+[data-theme='western'] .sync-badge-text,
+[data-theme='fantasy'] .sync-badge-text,
+[data-theme='romance'] .sync-badge-text {
+  color: var(--accent-red);
+}
+
+[data-theme='scifi'] .hdr-change-video-btn,
+[data-theme='noir'] .hdr-change-video-btn,
+[data-theme='western'] .hdr-change-video-btn,
+[data-theme='fantasy'] .hdr-change-video-btn,
+[data-theme='romance'] .hdr-change-video-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--stroke-cream);
+  outline: 2px solid var(--border-olive);
+  color: var(--accent-red);
+}
+
+[data-theme='scifi'] .voice-pill,
+[data-theme='noir'] .voice-pill,
+[data-theme='western'] .voice-pill,
+[data-theme='fantasy'] .voice-pill,
+[data-theme='romance'] .voice-pill {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+}
+[data-theme='scifi'] .voice-mic-btn.voice-mic-idle,
+[data-theme='noir'] .voice-mic-btn.voice-mic-idle,
+[data-theme='western'] .voice-mic-btn.voice-mic-idle,
+[data-theme='fantasy'] .voice-mic-btn.voice-mic-idle,
+[data-theme='romance'] .voice-mic-btn.voice-mic-idle {
+  color: var(--accent-red);
+}
+[data-theme='scifi'] .voice-divider,
+[data-theme='noir'] .voice-divider,
+[data-theme='western'] .voice-divider,
+[data-theme='fantasy'] .voice-divider,
+[data-theme='romance'] .voice-divider {
+  background: var(--border-olive);
+}
+[data-theme='scifi'] .voice-mode-tag,
+[data-theme='noir'] .voice-mode-tag,
+[data-theme='western'] .voice-mode-tag,
+[data-theme='fantasy'] .voice-mode-tag,
+[data-theme='romance'] .voice-mode-tag {
+  color: var(--accent-red);
+}
+[data-theme='scifi'] .voice-chevron,
+[data-theme='noir'] .voice-chevron,
+[data-theme='western'] .voice-chevron,
+[data-theme='fantasy'] .voice-chevron,
+[data-theme='romance'] .voice-chevron {
+  color: var(--accent-red);
+}
+
+[data-theme='scifi'] .mode-toggle,
+[data-theme='noir'] .mode-toggle,
+[data-theme='western'] .mode-toggle,
+[data-theme='fantasy'] .mode-toggle,
+[data-theme='romance'] .mode-toggle {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+}
+[data-theme='scifi'] .mode-btn.active,
+[data-theme='noir'] .mode-btn.active,
+[data-theme='western'] .mode-btn.active,
+[data-theme='fantasy'] .mode-btn.active,
+[data-theme='romance'] .mode-btn.active {
+  background: var(--accent-red);
+  color: var(--bg-cream);
+  border: 1.5px solid var(--stroke-cream);
+  outline: 1.5px solid #000;
+}
+
+[data-theme='scifi'] .theme-pill,
+[data-theme='noir'] .theme-pill,
+[data-theme='western'] .theme-pill,
+[data-theme='fantasy'] .theme-pill,
+[data-theme='romance'] .theme-pill {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+}
+[data-theme='scifi'] .theme-val,
+[data-theme='noir'] .theme-val,
+[data-theme='western'] .theme-val,
+[data-theme='fantasy'] .theme-val,
+[data-theme='romance'] .theme-val {
+  color: var(--accent-red);
+}
+[data-theme='scifi'] .theme-popover,
+[data-theme='noir'] .theme-popover,
+[data-theme='western'] .theme-popover,
+[data-theme='fantasy'] .theme-popover,
+[data-theme='romance'] .theme-popover {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+}
+[data-theme='scifi'] .theme-popover-item.selected,
+[data-theme='noir'] .theme-popover-item.selected,
+[data-theme='western'] .theme-popover-item.selected,
+[data-theme='fantasy'] .theme-popover-item.selected,
+[data-theme='romance'] .theme-popover-item.selected {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Cinema Stage & Video Container ─────────────────────────────────────── */
+[data-theme='scifi'] .main-workspace,
+[data-theme='noir'] .main-workspace,
+[data-theme='western'] .main-workspace,
+[data-theme='fantasy'] .main-workspace,
+[data-theme='romance'] .main-workspace {
+  background: var(--bg-cream);
+}
+
+[data-theme='scifi'] .cinema-stage,
+[data-theme='noir'] .cinema-stage,
+[data-theme='western'] .cinema-stage,
+[data-theme='fantasy'] .cinema-stage,
+[data-theme='romance'] .cinema-stage {
+  background: var(--bg-cream);
+}
+
+[data-theme='scifi'] .ambient-glow { background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.25) 0%, rgba(255, 0, 127, 0.1) 50%, transparent 75%); }
+[data-theme='noir'] .ambient-glow { background: radial-gradient(circle at 50% 50%, rgba(226, 232, 240, 0.15) 0%, rgba(71, 85, 105, 0.1) 50%, transparent 75%); }
+[data-theme='western'] .ambient-glow { background: radial-gradient(circle at 50% 50%, rgba(217, 119, 6, 0.25) 0%, rgba(124, 45, 18, 0.15) 50%, transparent 75%); }
+[data-theme='fantasy'] .ambient-glow { background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.25) 0%, rgba(251, 191, 36, 0.1) 50%, transparent 75%); }
+[data-theme='romance'] .ambient-glow { background: radial-gradient(circle at 50% 50%, rgba(225, 29, 72, 0.25) 0%, rgba(251, 113, 133, 0.15) 50%, transparent 75%); }
+
+[data-theme='scifi'] .video-container,
+[data-theme='noir'] .video-container,
+[data-theme='western'] .video-container,
+[data-theme='fantasy'] .video-container,
+[data-theme='romance'] .video-container {
+  background: #030305;
+  border: 2px solid var(--border-olive);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme='scifi'] .dropzone-icon,
+[data-theme='noir'] .dropzone-icon,
+[data-theme='western'] .dropzone-icon,
+[data-theme='fantasy'] .dropzone-icon,
+[data-theme='romance'] .dropzone-icon {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+  outline: 2px solid var(--stroke-cream);
+  color: var(--accent-red);
+}
+
+[data-theme='scifi'] .dropzone-title,
+[data-theme='noir'] .dropzone-title,
+[data-theme='western'] .dropzone-title,
+[data-theme='fantasy'] .dropzone-title,
+[data-theme='romance'] .dropzone-title {
+  color: var(--accent-red);
+  -webkit-text-stroke: 1px var(--stroke-cream);
+  text-shadow: 2px 2px 0px #000;
+}
+
+[data-theme='scifi'] .btn-file-select,
+[data-theme='noir'] .btn-file-select,
+[data-theme='western'] .btn-file-select,
+[data-theme='fantasy'] .btn-file-select,
+[data-theme='romance'] .btn-file-select {
+  background-color: var(--bg-card);
+  color: var(--accent-red);
+  border: 2.5px solid var(--border-olive);
+  outline: 2px solid var(--stroke-cream);
+}
+[data-theme='scifi'] .btn-file-select:hover,
+[data-theme='noir'] .btn-file-select:hover,
+[data-theme='western'] .btn-file-select:hover,
+[data-theme='fantasy'] .btn-file-select:hover,
+[data-theme='romance'] .btn-file-select:hover {
+  background-color: var(--bg-card-contrast);
+  color: var(--text-light);
+}
+
+/* ── Stage Footer & Resync ──────────────────────────────────────────────── */
+[data-theme='scifi'] .stage-footer,
+[data-theme='noir'] .stage-footer,
+[data-theme='western'] .stage-footer,
+[data-theme='fantasy'] .stage-footer,
+[data-theme='romance'] .stage-footer {
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+}
+[data-theme='scifi'] .resync-btn,
+[data-theme='noir'] .resync-btn,
+[data-theme='western'] .resync-btn,
+[data-theme='fantasy'] .resync-btn,
+[data-theme='romance'] .resync-btn {
+  background: var(--bg-card);
+  color: var(--accent-red);
+  border: 2px solid var(--border-olive);
+  outline: 2px solid var(--stroke-cream);
+}
+
+/* ── Live Chat Sidebar in Movie Themes ──────────────────────────────────── */
+[data-theme='scifi'] .chat-sidebar,
+[data-theme='noir'] .chat-sidebar,
+[data-theme='western'] .chat-sidebar,
+[data-theme='fantasy'] .chat-sidebar,
+[data-theme='romance'] .chat-sidebar {
+  background: var(--bg-cream);
+  border-left: 2.5px solid var(--border-olive);
+}
+
+[data-theme='scifi'] .chat-header,
+[data-theme='noir'] .chat-header,
+[data-theme='western'] .chat-header,
+[data-theme='fantasy'] .chat-header,
+[data-theme='romance'] .chat-header {
+  background: var(--bg-card);
+  border-bottom: 2px solid var(--border-olive);
+}
+
+[data-theme='scifi'] .chat-header-title,
+[data-theme='noir'] .chat-header-title,
+[data-theme='western'] .chat-header-title,
+[data-theme='fantasy'] .chat-header-title,
+[data-theme='romance'] .chat-header-title {
+  color: var(--accent-red);
+  -webkit-text-stroke: 1px var(--stroke-cream);
+}
+
+[data-theme='scifi'] .chat-messages-container,
+[data-theme='noir'] .chat-messages-container,
+[data-theme='western'] .chat-messages-container,
+[data-theme='fantasy'] .chat-messages-container,
+[data-theme='romance'] .chat-messages-container {
+  background: var(--bg-cream);
+}
+
+[data-theme='scifi'] .empty-chat-title,
+[data-theme='noir'] .empty-chat-title,
+[data-theme='western'] .empty-chat-title,
+[data-theme='fantasy'] .empty-chat-title,
+[data-theme='romance'] .empty-chat-title {
+  color: var(--accent-red);
+  border-bottom: 2.5px solid var(--border-olive);
+}
+
+[data-theme='scifi'] .message-row.mine .message-bubble,
+[data-theme='noir'] .message-row.mine .message-bubble,
+[data-theme='western'] .message-row.mine .message-bubble,
+[data-theme='fantasy'] .message-row.mine .message-bubble,
+[data-theme='romance'] .message-row.mine .message-bubble {
+  background: var(--bg-card-contrast);
+  color: var(--text-dark);
+  border: 2px solid var(--border-olive);
+  outline: 1.5px solid var(--stroke-cream);
+}
+
+[data-theme='scifi'] .message-row.theirs .message-bubble,
+[data-theme='noir'] .message-row.theirs .message-bubble,
+[data-theme='western'] .message-row.theirs .message-bubble,
+[data-theme='fantasy'] .message-row.theirs .message-bubble,
+[data-theme='romance'] .message-row.theirs .message-bubble {
+  background: var(--bg-card);
+  color: var(--text-dark);
+  border: 2px solid var(--border-subtle);
+  outline: 1.5px solid #000;
+}
+
+[data-theme='scifi'] .chat-input-bar,
+[data-theme='noir'] .chat-input-bar,
+[data-theme='western'] .chat-input-bar,
+[data-theme='fantasy'] .chat-input-bar,
+[data-theme='romance'] .chat-input-bar {
+  background: var(--bg-card);
+  border-top: 2px solid var(--border-olive);
+}
+
+[data-theme='scifi'] .chat-input,
+[data-theme='noir'] .chat-input,
+[data-theme='western'] .chat-input,
+[data-theme='fantasy'] .chat-input,
+[data-theme='romance'] .chat-input {
+  background: var(--bg-cream);
+  border: 1.5px solid var(--border-olive);
+  color: var(--text-dark);
+}
+
+[data-theme='scifi'] .chat-send-btn,
+[data-theme='noir'] .chat-send-btn,
+[data-theme='western'] .chat-send-btn,
+[data-theme='fantasy'] .chat-send-btn,
+[data-theme='romance'] .chat-send-btn {
+  background: var(--accent-red);
+  color: var(--bg-cream);
+  border: 2px solid var(--border-olive);
+  outline: 1.5px solid #000;
+}
+
+
