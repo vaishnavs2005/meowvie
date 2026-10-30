@@ -98,18 +98,18 @@ export default function FloatingCatCanvas({ paused = false }) {
         centerRight = cr.right;
       }
 
-      // Natural, tighter edge margins so cats float comfortably near the screen edges
-      const edgePadX = Math.max(34, width * 0.026);
-      const edgePadY = Math.max(34, height * 0.038);
-      const wingTop = edgePadY;
-      const wingBottom = height - edgePadY;
+      // Generous edge margins so cats never touch or clip the screen edges
+      const safeMarginX = Math.max(95, Math.min(130, Math.round(width * 0.075)));
+      const safeMarginY = Math.max(85, Math.min(115, Math.round(height * 0.11)));
+      const wingTop = safeMarginY;
+      const wingBottom = height - safeMarginY;
 
-      // Define Left Wing and Right Wing arenas (reaching all the way to screen edges)
-      const leftWingLeft = edgePadX;
-      const leftWingRight = Math.max(leftWingLeft + 140, centerLeft - 28);
+      // Define Left Wing and Right Wing arenas (keeping comfortable distance from screen edges)
+      const leftWingLeft = safeMarginX;
+      const leftWingRight = Math.max(leftWingLeft + 120, centerLeft - 32);
 
-      const rightWingLeft = Math.min(width - edgePadX - 140, centerRight + 28);
-      const rightWingRight = width - edgePadX;
+      const rightWingLeft = Math.min(width - safeMarginX - 120, centerRight + 32);
+      const rightWingRight = width - safeMarginX;
 
       // Card bounding box (to ensure cats never block inputs or buttons)
       const cardBox = cardEl ? cardEl.getBoundingClientRect() : null;
@@ -249,18 +249,18 @@ export default function FloatingCatCanvas({ paused = false }) {
         cat2.homeY = p2.y;
 
         if (snapToHome) {
-          // On page load: cats drop in gracefully from above the screen with downward momentum proportional to homeY
-          cat1.x = p1.x + (Math.random() - 0.5) * 16;
-          cat1.y = -cat1.radius - 30 - (imgIdx * 12);
-          cat1.vx = (Math.random() - 0.5) * 1.0;
-          cat1.vy = 4.0 + (p1.y / height) * 6.5;
-          cat1.squish = 0.3;
+          // On page load: cats drop in gracefully from just above their home positions with bouncy cartoon momentum
+          cat1.x = p1.x;
+          cat1.y = Math.min(-cat1.radius - 20, p1.y - 140 - (imgIdx * 8));
+          cat1.vx = (Math.random() - 0.5) * 0.3;
+          cat1.vy = 5.0 + Math.random() * 2.5;
+          cat1.squish = 0.35;
 
-          cat2.x = p2.x + (Math.random() - 0.5) * 16;
-          cat2.y = -cat2.radius - 30 - (imgIdx * 12 + 10);
-          cat2.vx = (Math.random() - 0.5) * 1.0;
-          cat2.vy = 4.0 + (p2.y / height) * 6.5;
-          cat2.squish = 0.3;
+          cat2.x = p2.x;
+          cat2.y = Math.min(-cat2.radius - 20, p2.y - 140 - (imgIdx * 8 + 6));
+          cat2.vx = (Math.random() - 0.5) * 0.3;
+          cat2.vy = 5.0 + Math.random() * 2.5;
+          cat2.squish = 0.35;
         }
       }
     }
@@ -319,12 +319,17 @@ export default function FloatingCatCanvas({ paused = false }) {
       mouse.prevY = currentY;
       mouse.active = true;
 
-      // Handle dragging
+      // Handle dragging: softly clamp inside cushioned boundaries so dragged cat never touches screen edge
       if (mouse.draggedCat) {
-        mouse.draggedCat.x = currentX - mouse.draggedCat.dragOffsetX;
-        mouse.draggedCat.y = currentY - mouse.draggedCat.dragOffsetY;
-        mouse.draggedCat.history.push({ x: mouse.draggedCat.x, y: mouse.draggedCat.y, t: Date.now() });
-        if (mouse.draggedCat.history.length > 5) mouse.draggedCat.history.shift();
+        const cat = mouse.draggedCat;
+        const targetX = currentX - cat.dragOffsetX;
+        const targetY = currentY - cat.dragOffsetY;
+        const wallPadX = Math.max(55, Math.min(85, Math.round(width * 0.05)));
+        const wallPadY = Math.max(50, Math.min(80, Math.round(height * 0.07)));
+        cat.x = Math.max(wallPadX + cat.radius, Math.min(width - wallPadX - cat.radius, targetX));
+        cat.y = Math.max(wallPadY + cat.radius, Math.min(height - wallPadY - cat.radius, targetY));
+        cat.history.push({ x: cat.x, y: cat.y, t: Date.now() });
+        if (cat.history.length > 5) cat.history.shift();
       }
 
       // Check hover for any cat (generous hit radius)
@@ -604,14 +609,14 @@ export default function FloatingCatCanvas({ paused = false }) {
           const dy = targetY - cat.y;
           const distToHome = Math.hypot(dx, dy);
 
-          // Loose, relaxed spring return: smooth floaty return without snapping
-          const springK = 0.0026;
+          // Adaptive spring: responsive return when far (e.g. entrance drop or flung), gentle floaty return when close
+          const springK = distToHome > 40 ? 0.007 : 0.003;
           cat.vx += dx * springK;
           cat.vy += dy * springK;
 
           // Loose air damping for fluid, organic drift
-          cat.vx *= 0.958;
-          cat.vy *= 0.958;
+          cat.vx *= 0.955;
+          cat.vy *= 0.955;
 
           // When settled very close to target, softly calm any micro-jitter
           if (distToHome < 6) {
@@ -635,9 +640,10 @@ export default function FloatingCatCanvas({ paused = false }) {
           cat.angle += (targetAngle - cat.angle) * 0.03;
           cat.vAngle *= 0.95;
 
-          // Wall bounces
-          const wallPadX = 32;
-          const wallPadY = 28;
+          // Wall bounces: cushioned boundary so cats never touch or clip the edges
+          const wallPadX = Math.max(55, Math.min(85, Math.round(width * 0.05)));
+          const wallPadY = Math.max(50, Math.min(80, Math.round(height * 0.07)));
+
           if (cat.x - cat.radius < wallPadX) {
             cat.x = wallPadX + cat.radius;
             cat.vx = Math.abs(cat.vx) * 0.82;
@@ -652,7 +658,7 @@ export default function FloatingCatCanvas({ paused = false }) {
             addSparks(cat.x + cat.radius, cat.y, 2);
           }
 
-          if (cat.y > wallPadY && cat.y - cat.radius < wallPadY && cat.vy < 0) {
+          if (cat.y - cat.radius < wallPadY && cat.vy < 0) {
             cat.y = wallPadY + cat.radius;
             cat.vy = Math.abs(cat.vy) * 0.82;
             cat.vAngle += (Math.random() - 0.5) * 0.07;
