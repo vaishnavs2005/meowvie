@@ -1505,6 +1505,110 @@ body {
   letter-spacing: -0.5px;
 }
 
+/* Seek OSD Overlay (5s Left / Right with >>> +5 and -5 <<<) */
+@keyframes seekPopIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.seek-osd-overlay {
+  position: absolute;
+  top: 50%;
+  pointer-events: none;
+  z-index: 90;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+  user-select: none;
+}
+
+.seek-osd-overlay.backward {
+  left: 20%;
+  transform: translate(-50%, -50%) scale(0.88);
+}
+
+.seek-osd-overlay.forward {
+  right: 20%;
+  transform: translate(50%, -50%) scale(0.88);
+}
+
+.seek-osd-overlay.backward.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.seek-osd-overlay.forward.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(50%, -50%) scale(1);
+  transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.seek-osd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(26, 26, 26, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 2.5px solid var(--stroke-cream);
+  outline: 2px solid #1A1A1A;
+  box-shadow: var(--shadow-comic-lg);
+  border-radius: var(--radius-full);
+  padding: 14px 28px;
+  animation: seekPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.seek-osd-arrows {
+  font-family: var(--font-display), monospace;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ff7700;
+  letter-spacing: 3px;
+  filter: drop-shadow(0 0 8px rgba(255, 119, 0, 0.65));
+}
+
+.seek-osd-text {
+  font-family: var(--font-display), var(--font-mono), sans-serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--stroke-cream);
+  text-shadow: 2px 2px 0px #1A1A1A;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .seek-osd-overlay.backward {
+    left: 25%;
+  }
+  .seek-osd-overlay.forward {
+    right: 25%;
+  }
+  .seek-osd-badge {
+    padding: 10px 18px;
+    gap: 8px;
+  }
+  .seek-osd-arrows {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+  }
+  .seek-osd-text {
+    font-size: 1.15rem;
+  }
+}
+
+
 /* Time Display Badge */
 .time-display {
   display: inline-flex;

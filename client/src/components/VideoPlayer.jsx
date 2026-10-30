@@ -89,6 +89,12 @@ export default function VideoPlayer({
   const [volumePopupMuted, setVolumePopupMuted] = useState(false);
   const volumePopupTimerRef = useRef(null);
 
+  // Seek OSD overlay state
+  const [showSeekPopup, setShowSeekPopup] = useState(false);
+  const [seekPopupDirection, setSeekPopupDirection] = useState('forward');
+  const [seekAnimKey, setSeekAnimKey] = useState(0);
+  const seekPopupTimerRef = useRef(null);
+
   // MKV Metadata (Audio Settings & Multi-Audio Tracks)
   const [mkvData, setMkvData] = useState(null);
   const [selectedAudioTrackIndex, setSelectedAudioTrackIndex] = useState(0);
@@ -385,7 +391,7 @@ export default function VideoPlayer({
   };
 
   // Relative Seek (-5s, +5s)
-  const handleRelativeSeek = (delta) => {
+  const handleRelativeSeek = useCallback((delta) => {
     const video = videoRef.current;
     if (!video || !videoSrc) return;
 
@@ -401,10 +407,12 @@ export default function VideoPlayer({
     setCurrentTime(newTime);
     video.currentTime = newTime;
 
+    triggerSeekOverlay(delta > 0 ? 'forward' : 'backward');
+
     if (!isApplyingRemote.current && onPlaybackAction) {
       onPlaybackAction('seek', newTime);
     }
-  };
+  }, [videoSrc, canControlPlayback, duration, onShowToast, onPlaybackAction, triggerSeekOverlay]);
 
   // Seeker Click / Scrub
   const handleSeekClick = (e) => {
@@ -459,10 +467,28 @@ export default function VideoPlayer({
     }, 1000);
   }, []);
 
+  // Seek OSD Popup trigger (auto fades out after 1 second)
+  const triggerSeekOverlay = useCallback((direction) => {
+    setSeekPopupDirection(direction);
+    setSeekAnimKey((k) => k + 1);
+    setShowSeekPopup(true);
+
+    if (seekPopupTimerRef.current) {
+      clearTimeout(seekPopupTimerRef.current);
+    }
+    seekPopupTimerRef.current = setTimeout(() => {
+      setShowSeekPopup(false);
+      seekPopupTimerRef.current = null;
+    }, 1000);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (volumePopupTimerRef.current) {
         clearTimeout(volumePopupTimerRef.current);
+      }
+      if (seekPopupTimerRef.current) {
+        clearTimeout(seekPopupTimerRef.current);
       }
     };
   }, []);
@@ -642,12 +668,12 @@ export default function VideoPlayer({
       } else if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
         e.preventDefault();
         e.stopPropagation();
-        handleRelativeSeek(-10);
+        handleRelativeSeek(-5);
         setIsCursorActive(true);
       } else if (e.code === 'ArrowRight' || e.key === 'ArrowRight') {
         e.preventDefault();
         e.stopPropagation();
-        handleRelativeSeek(10);
+        handleRelativeSeek(5);
         setIsCursorActive(true);
       } else if (e.code === 'ArrowUp' || e.key === 'ArrowUp') {
         e.preventDefault();
@@ -781,6 +807,26 @@ export default function VideoPlayer({
               ? '0%'
               : `${Math.round(volumePopupLevel * 100)}%`}
           </span>
+        </div>
+
+        {/* Seek OSD Overlay (5s left and right) */}
+        <div
+          className={`seek-osd-overlay ${seekPopupDirection} ${showSeekPopup ? 'visible' : ''}`}
+          aria-live="polite"
+        >
+          <div key={seekAnimKey} className="seek-osd-badge">
+            {seekPopupDirection === 'forward' ? (
+              <>
+                <span className="seek-osd-arrows">&gt;&gt;&gt;</span>
+                <span className="seek-osd-text">+5</span>
+              </>
+            ) : (
+              <>
+                <span className="seek-osd-text">-5</span>
+                <span className="seek-osd-arrows">&lt;&lt;&lt;</span>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Top Header Bar inside Video Player - Only pops up when arrow is placed at the extreme top */}
@@ -985,8 +1031,8 @@ export default function VideoPlayer({
 
                 <button
                   className={`ctrl-btn ${!canControlPlayback ? 'disabled' : ''}`}
-                  onClick={() => handleRelativeSeek(-10)}
-                  title={canControlPlayback ? 'Rewind 10 seconds' : 'Rewind locked to Host'}
+                  onClick={() => handleRelativeSeek(-5)}
+                  title={canControlPlayback ? 'Rewind 5 seconds (-5 <<<)' : 'Rewind locked to Host'}
                   disabled={!canControlPlayback}
                 >
                   <RotateCcw size={17} />
@@ -994,8 +1040,8 @@ export default function VideoPlayer({
 
                 <button
                   className={`ctrl-btn ${!canControlPlayback ? 'disabled' : ''}`}
-                  onClick={() => handleRelativeSeek(10)}
-                  title={canControlPlayback ? 'Forward 10 seconds' : 'Forward locked to Host'}
+                  onClick={() => handleRelativeSeek(5)}
+                  title={canControlPlayback ? 'Forward 5 seconds (>>> +5)' : 'Forward locked to Host'}
                   disabled={!canControlPlayback}
                 >
                   <RotateCw size={17} />
