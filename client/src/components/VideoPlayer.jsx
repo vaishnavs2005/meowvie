@@ -390,6 +390,47 @@ export default function VideoPlayer({
     }
   };
 
+  // Volume OSD Popup trigger (auto fades out after 1 second)
+  const triggerVolumeOverlay = useCallback((level, muted) => {
+    setVolumePopupLevel(level);
+    setVolumePopupMuted(muted);
+    setShowVolumePopup(true);
+
+    if (volumePopupTimerRef.current) {
+      clearTimeout(volumePopupTimerRef.current);
+    }
+    volumePopupTimerRef.current = setTimeout(() => {
+      setShowVolumePopup(false);
+      volumePopupTimerRef.current = null;
+    }, 1000);
+  }, []);
+
+  // Seek OSD Popup trigger (auto fades out after 1 second)
+  const triggerSeekOverlay = useCallback((direction) => {
+    setSeekPopupDirection(direction);
+    setSeekAnimKey((k) => k + 1);
+    setShowSeekPopup(true);
+
+    if (seekPopupTimerRef.current) {
+      clearTimeout(seekPopupTimerRef.current);
+    }
+    seekPopupTimerRef.current = setTimeout(() => {
+      setShowSeekPopup(false);
+      seekPopupTimerRef.current = null;
+    }, 1000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (volumePopupTimerRef.current) {
+        clearTimeout(volumePopupTimerRef.current);
+      }
+      if (seekPopupTimerRef.current) {
+        clearTimeout(seekPopupTimerRef.current);
+      }
+    };
+  }, []);
+
   // Relative Seek (-5s, +5s)
   const handleRelativeSeek = useCallback((delta) => {
     const video = videoRef.current;
@@ -451,47 +492,6 @@ export default function VideoPlayer({
   const handleSeekerMouseLeave = () => {
     setHoverTime(null);
   };
-
-  // Volume OSD Popup trigger (auto fades out after 1 second)
-  const triggerVolumeOverlay = useCallback((level, muted) => {
-    setVolumePopupLevel(level);
-    setVolumePopupMuted(muted);
-    setShowVolumePopup(true);
-
-    if (volumePopupTimerRef.current) {
-      clearTimeout(volumePopupTimerRef.current);
-    }
-    volumePopupTimerRef.current = setTimeout(() => {
-      setShowVolumePopup(false);
-      volumePopupTimerRef.current = null;
-    }, 1000);
-  }, []);
-
-  // Seek OSD Popup trigger (auto fades out after 1 second)
-  const triggerSeekOverlay = useCallback((direction) => {
-    setSeekPopupDirection(direction);
-    setSeekAnimKey((k) => k + 1);
-    setShowSeekPopup(true);
-
-    if (seekPopupTimerRef.current) {
-      clearTimeout(seekPopupTimerRef.current);
-    }
-    seekPopupTimerRef.current = setTimeout(() => {
-      setShowSeekPopup(false);
-      seekPopupTimerRef.current = null;
-    }, 1000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (volumePopupTimerRef.current) {
-        clearTimeout(volumePopupTimerRef.current);
-      }
-      if (seekPopupTimerRef.current) {
-        clearTimeout(seekPopupTimerRef.current);
-      }
-    };
-  }, []);
 
   // Volume & Mute
   const handleVolumeChange = (e) => {
