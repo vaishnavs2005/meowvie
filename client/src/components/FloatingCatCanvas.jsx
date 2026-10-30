@@ -85,76 +85,126 @@ export default function FloatingCatCanvas({ paused = false }) {
       });
     }
 
-    // Function to compute 24 evenly, randomly distributed, non-touching positions
-    // and assign duplicated cats so they are maximally far apart from each other
+    // Function to compute 24 randomly scattered, organic, non-uniform positions across the screen
+    // filling the space naturally towards the edges while giving breathing room to the center card
     function computeHomePositions(snapToHome = false) {
       const cardEl = document.querySelector('.landing-order-card');
-      const heroEl = document.querySelector('.landing-hero');
-      let centerLeft = width * 0.33;
-      let centerRight = width * 0.67;
+      let centerLeft = width * 0.34;
+      let centerRight = width * 0.66;
 
-      if (cardEl || heroEl) {
-        const cr = cardEl ? cardEl.getBoundingClientRect() : null;
-        const hr = heroEl ? heroEl.getBoundingClientRect() : null;
-        centerLeft = Math.min(cr ? cr.left : Infinity, hr ? hr.left : Infinity);
-        centerRight = Math.max(cr ? cr.right : -Infinity, hr ? hr.right : -Infinity);
+      if (cardEl) {
+        const cr = cardEl.getBoundingClientRect();
+        centerLeft = cr.left;
+        centerRight = cr.right;
       }
 
-      // Safe outer margins from all 4 screen edges
-      const edgePadX = Math.max(85, width * 0.065);
-      const edgePadY = Math.max(75, height * 0.10);
+      // Natural, tighter edge margins so cats float comfortably near the screen edges
+      const edgePadX = Math.max(34, width * 0.026);
+      const edgePadY = Math.max(34, height * 0.038);
       const wingTop = edgePadY;
       const wingBottom = height - edgePadY;
-      const wingH = wingBottom - wingTop;
 
-      // Define Left Wing and Right Wing arenas (leaving safe margins from card and screen borders)
+      // Define Left Wing and Right Wing arenas (reaching all the way to screen edges)
       const leftWingLeft = edgePadX;
-      const leftWingRight = Math.max(leftWingLeft + 120, centerLeft - 32);
-      const leftWingW = leftWingRight - leftWingLeft;
+      const leftWingRight = Math.max(leftWingLeft + 140, centerLeft - 28);
 
-      const rightWingLeft = Math.min(width - edgePadX - 120, centerRight + 32);
+      const rightWingLeft = Math.min(width - edgePadX - 140, centerRight + 28);
       const rightWingRight = width - edgePadX;
-      const rightWingW = rightWingRight - rightWingLeft;
 
-      // 1. Generate 12 stratified random points in Left Wing, 12 in Right Wing
-      const positions = [];
-      const wingCols = 3;
-      const wingRows = 4;
-      const cellH = wingH / wingRows;
+      // Card bounding box (to ensure cats never block inputs or buttons)
+      const cardBox = cardEl ? cardEl.getBoundingClientRect() : null;
 
-      // Left Wing: 12 cats (3 cols x 4 rows)
-      const leftCellW = leftWingW / wingCols;
-      for (let r = 0; r < wingRows; r++) {
-        for (let c = 0; c < wingCols; c++) {
-          const px = leftWingLeft + (c + 0.18 + Math.random() * 0.64) * leftCellW;
-          const py = wingTop + (r + 0.18 + Math.random() * 0.64) * cellH;
-          positions.push({ x: px, y: py, radius: cats[positions.length]?.radius || 24, wing: 'left' });
+      // Generate scattered random positions using Mitchell's Best-Candidate algorithm
+      // with blue-noise organic distribution: no rigid columns, no uniform gaps!
+      function generateScatteredPoints(minX, maxX, minY, maxY, count, wingName) {
+        const points = [];
+
+        // First point: fully random inside wing
+        points.push({
+          x: minX + Math.random() * (maxX - minX),
+          y: minY + Math.random() * (maxY - minY),
+          wing: wingName,
+          radius: 24,
+        });
+
+        while (points.length < count) {
+          let bestCandidate = null;
+          let maxScoredDist = -1;
+          const candidateAttempts = 40;
+
+          for (let a = 0; a < candidateAttempts; a++) {
+            const cand = {
+              x: minX + Math.random() * (maxX - minX),
+              y: minY + Math.random() * (maxY - minY),
+              wing: wingName,
+              radius: 24,
+            };
+
+            // Avoid center card boundary with buffer
+            if (cardBox) {
+              const insideCard = (
+                cand.x >= cardBox.left - 24 &&
+                cand.x <= cardBox.right + 24 &&
+                cand.y >= cardBox.top - 20 &&
+                cand.y <= cardBox.bottom + 20
+              );
+              if (insideCard) continue;
+            }
+
+            // Find closest existing point
+            let minDist = Infinity;
+            for (const p of points) {
+              const d = Math.hypot(cand.x - p.x, cand.y - p.y);
+              if (d < minDist) minDist = d;
+            }
+
+            // Jittered distance scoring creates natural organic spacing (not uniform!)
+            const scoredDist = minDist * (0.75 + Math.random() * 0.5);
+            if (scoredDist > maxScoredDist) {
+              maxScoredDist = scoredDist;
+              bestCandidate = cand;
+            }
+          }
+
+          if (bestCandidate) {
+            points.push(bestCandidate);
+          } else {
+            // Fallback random
+            points.push({
+              x: minX + Math.random() * (maxX - minX),
+              y: minY + Math.random() * (maxY - minY),
+              wing: wingName,
+              radius: 24,
+            });
+          }
         }
+        return points;
       }
 
-      // Right Wing: 12 cats (3 cols x 4 rows)
-      const rightCellW = rightWingW / wingCols;
-      for (let r = 0; r < wingRows; r++) {
-        for (let c = 0; c < wingCols; c++) {
-          const px = rightWingLeft + (c + 0.18 + Math.random() * 0.64) * rightCellW;
-          const py = wingTop + (r + 0.18 + Math.random() * 0.64) * cellH;
-          positions.push({ x: px, y: py, radius: cats[positions.length]?.radius || 24, wing: 'right' });
-        }
-      }
+      // Generate 12 scattered points for Left Wing, 12 for Right Wing
+      const leftPositions = generateScatteredPoints(leftWingLeft, leftWingRight, wingTop, wingBottom, 12, 'left');
+      const rightPositions = generateScatteredPoints(rightWingLeft, rightWingRight, wingTop, wingBottom, 12, 'right');
+      const positions = [...leftPositions, ...rightPositions];
 
-      // 2. Multi-pass repulsive relaxation to ensure NO TWO CATS TOUCH (min buffer of 44px)
-      // and keep them strictly inside their designated wings away from screen borders
-      const iterations = 45;
+      // Assign radii from cat specs
+      positions.forEach((p, idx) => {
+        p.radius = cats[idx]?.radius || 24;
+      });
+
+      // Gentle relaxation to prevent any accidental overlapping (min separation buffer ~16px)
+      // while preserving the completely random, non-uniform scattered look!
+      const iterations = 20;
       for (let iter = 0; iter < iterations; iter++) {
-        // Inter-cat repulsion
         for (let i = 0; i < positions.length; i++) {
           for (let j = i + 1; j < positions.length; j++) {
             const p1 = positions[i];
             const p2 = positions[j];
+            if (p1.wing !== p2.wing) continue;
+
             const dx = p2.x - p1.x;
             const dy = p2.y - p1.y;
             const dist = Math.hypot(dx, dy);
-            const minDist = p1.radius + p2.radius + 44;
+            const minDist = p1.radius + p2.radius + 16; // Minimum separation, NOT uniform gap
 
             if (dist < minDist && dist > 0) {
               const overlap = (minDist - dist) * 0.5;
@@ -164,14 +214,11 @@ export default function FloatingCatCanvas({ paused = false }) {
               p1.y -= ny * overlap;
               p2.x += nx * overlap;
               p2.y += ny * overlap;
-            } else if (dist === 0) {
-              p1.x -= 12;
-              p2.x += 12;
             }
           }
         }
 
-        // Clamp each point within its respective wing boundaries
+        // Clamp inside wings
         for (const p of positions) {
           if (p.wing === 'left') {
             p.x = Math.max(leftWingLeft, Math.min(leftWingRight, p.x));
@@ -182,12 +229,14 @@ export default function FloatingCatCanvas({ paused = false }) {
         }
       }
 
-      // 3. Duplicate Separation: 12 unique images
-      // Copy 1 is ALWAYS in Left Wing (positions 0..11)
-      // Copy 2 is ALWAYS in Right Wing (positions 12..23)
+      // Duplicate Separation: 12 unique images
+      // Copy 1 is in Left Wing, Copy 2 is in Right Wing
+      // Permuted so the same cat isn't in corresponding locations on left vs right
+      const rightPermutation = [7, 2, 9, 4, 11, 0, 6, 1, 8, 3, 10, 5];
+
       for (let imgIdx = 0; imgIdx < NUM_UNIQUE_CATS; imgIdx++) {
         const p1 = positions[imgIdx];
-        const p2 = positions[12 + ((imgIdx * 7 + 4) % 12)];
+        const p2 = positions[12 + (rightPermutation[imgIdx] % 12)];
 
         const cat1 = cats[2 * imgIdx];
         cat1.img = images[imgIdx];
@@ -200,17 +249,17 @@ export default function FloatingCatCanvas({ paused = false }) {
         cat2.homeY = p2.y;
 
         if (snapToHome) {
-          // On page load: cats drop in gracefully from above the screen with downward momentum
-          cat1.x = p1.x + (Math.random() - 0.5) * 24;
-          cat1.y = -cat1.radius - 40 - (imgIdx * 32 + Math.random() * 50);
-          cat1.vx = (Math.random() - 0.5) * 1.5;
-          cat1.vy = 3.2 + Math.random() * 3.6;
+          // On page load: cats drop in gracefully from above the screen with downward momentum proportional to homeY
+          cat1.x = p1.x + (Math.random() - 0.5) * 16;
+          cat1.y = -cat1.radius - 30 - (imgIdx * 12);
+          cat1.vx = (Math.random() - 0.5) * 1.0;
+          cat1.vy = 4.0 + (p1.y / height) * 6.5;
           cat1.squish = 0.3;
 
-          cat2.x = p2.x + (Math.random() - 0.5) * 24;
-          cat2.y = -cat2.radius - 40 - (imgIdx * 32 + 20 + Math.random() * 50);
-          cat2.vx = (Math.random() - 0.5) * 1.5;
-          cat2.vy = 3.2 + Math.random() * 3.6;
+          cat2.x = p2.x + (Math.random() - 0.5) * 16;
+          cat2.y = -cat2.radius - 30 - (imgIdx * 12 + 10);
+          cat2.vx = (Math.random() - 0.5) * 1.0;
+          cat2.vy = 4.0 + (p2.y / height) * 6.5;
           cat2.squish = 0.3;
         }
       }
