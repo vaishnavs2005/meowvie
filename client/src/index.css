@@ -2378,6 +2378,33 @@ body {
   border: 1.5px solid var(--border-subtle);
 }
 
+.change-video-footer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  color: var(--text-dark);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--stroke-cream);
+  outline: 2px solid #1A1A1A;
+  box-shadow: var(--shadow-comic-sm);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  white-space: nowrap;
+}
+.change-video-footer-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-comic);
+  background: #FFFFFF;
+}
+.change-video-footer-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
 .resync-btn {
   display: inline-flex;
   align-items: center;

@@ -109,18 +109,6 @@ export default function Header({
       {/* ── RIGHT: Actions + Voice + Mode + User ────────────────── */}
       <div className="header-right">
 
-        {/* Change Video */}
-        {roomId && (
-          <button
-            onClick={onChangeVideo}
-            className="hdr-change-video-btn"
-            title="Choose or switch video file"
-          >
-            <Upload size={14} />
-            <span>Change Video</span>
-          </button>
-        )}
-
         {/* Voice controls */}
         <div className="voice-pill" ref={voiceMenuRef}>
 

@@ -53,7 +53,18 @@ export default function SyncStatusBar({
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {onChangeVideo && (
+          <button
+            onClick={onChangeVideo}
+            className="change-video-footer-btn"
+            title="Choose or switch video file"
+          >
+            <Upload size={13} />
+            <span>Change Video</span>
+          </button>
+        )}
+
         <button
           onClick={onManualResync}
           className="resync-btn"
