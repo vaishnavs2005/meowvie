@@ -243,6 +243,7 @@ body {
    ========================================================================== */
 
 .app-header {
+  position: relative;
   height: var(--header-height);
   padding: 0 24px;
   background: var(--bg-cream-tint);
@@ -369,12 +370,17 @@ body {
   transform: scale(1.12) rotate(-4deg);
 }
 
-/* ── Center: Room + Viewers ─────────────────────────────────────────────── */
+/* ── Center: Room + Viewers (Fixed at dead center of header) ──────────────── */
 .header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .room-pill {
@@ -459,6 +465,7 @@ body {
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Change Video button */
