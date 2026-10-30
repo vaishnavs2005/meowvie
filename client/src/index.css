@@ -1388,6 +1388,7 @@ body {
   border-radius: var(--radius-full);
   outline: none;
   cursor: pointer;
+  vertical-align: middle;
   transition: background 0.05s ease;
 }
 .volume-slider::-webkit-slider-runnable-track {
@@ -1406,6 +1407,7 @@ body {
   outline: 1px solid #1A1A1A;
   box-shadow: 1px 1px 0px #1A1A1A;
   cursor: pointer;
+  margin-top: -4px;
   transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 .volume-slider::-webkit-slider-thumb:hover {
