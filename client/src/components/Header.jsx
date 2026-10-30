@@ -5,6 +5,7 @@ import titleImg from '../assets/title.png';
 
 export default function Header({
   roomId,
+  users = [],
   currentUser,
   usersCount = 1,
   isConnected,
@@ -17,6 +18,7 @@ export default function Header({
   voiceMode = 'ptt',
   isOpenMicActive = false,
   isSpeaking = false,
+  activeSpeakers = null,
   onToggleVoiceMode,
   onSetVoiceMode,
   onToggleMic,
@@ -118,6 +120,20 @@ export default function Header({
 
       {/* ── RIGHT: Actions + Voice + Mode + User ────────────────── */}
       <div className="header-right">
+
+        {/* Speaking indicator shown right next to the mic setting button */}
+        {activeSpeakers && activeSpeakers.size > 0 && (
+          <div className="header-speaking-indicator" aria-live="polite">
+            <span className="speaking-icon">🎙️</span>
+            <span className="speaking-text">
+              {Array.from(activeSpeakers).map(id => {
+                if (id === 'local') return 'You';
+                const user = users?.find(u => u.id === id);
+                return user ? user.username : 'Someone';
+              }).join(', ')} speaking...
+            </span>
+          </div>
+        )}
 
         {/* Unified Control Box: Voice + Playback Mode */}
         <div className="header-control-cluster">

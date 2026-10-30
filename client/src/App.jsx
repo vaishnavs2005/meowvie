@@ -612,6 +612,7 @@ export default function App() {
           {/* Top Navigation Bar */}
           <Header
             roomId={roomId}
+            users={users}
             currentUser={currentUser}
             usersCount={users.length}
             isConnected={isConnected}
@@ -624,6 +625,7 @@ export default function App() {
             voiceMode={voiceMode}
             isOpenMicActive={isOpenMicActive}
             isSpeaking={activeSpeakers.has('local')}
+            activeSpeakers={activeSpeakers}
             onToggleVoiceMode={handleToggleVoiceMode}
             onSetVoiceMode={handleSetVoiceMode}
             onToggleMic={handleToggleMic}
@@ -722,20 +724,6 @@ export default function App() {
         isOpen={isInfoModalOpen}
         onClose={() => setIsInfoModalOpen(false)}
       />
-
-      {/* Walkie Talkie UI Indicator (Rendered here when not in fullscreen; fullscreen renders inside VideoPlayer) */}
-      {!isFullscreen && activeSpeakers.size > 0 && (
-        <div className="walkie-talkie-indicator" aria-live="polite">
-          <span style={{ fontSize: '1.2rem' }}>🎙️</span>
-          <span>
-            {Array.from(activeSpeakers).map(id => {
-              if (id === 'local') return 'You';
-              const user = users.find(u => u.id === id);
-              return user ? user.username : 'Someone';
-            }).join(', ')} speaking...
-          </span>
-        </div>
-      )}
 
       {/* Render Remote Audio Streams */}
       {Object.entries(peerStreams).map(([userId, stream]) => (
