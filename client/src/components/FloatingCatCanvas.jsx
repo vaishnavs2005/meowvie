@@ -249,18 +249,21 @@ export default function FloatingCatCanvas({ paused = false }) {
         cat2.homeY = p2.y;
 
         if (snapToHome) {
-          // On page load: cats drop in gracefully from just above their home positions with bouncy cartoon momentum
+          // On page load: all cats start completely above the top edge of the screen and fall down naturally
+          const stagger1 = imgIdx * 20;
+          const stagger2 = imgIdx * 20 + 10;
+
           cat1.x = p1.x;
-          cat1.y = Math.min(-cat1.radius - 20, p1.y - 140 - (imgIdx * 8));
+          cat1.y = -cat1.radius - 40 - stagger1;
           cat1.vx = (Math.random() - 0.5) * 0.3;
-          cat1.vy = 5.0 + Math.random() * 2.5;
-          cat1.squish = 0.35;
+          cat1.vy = 6.5 + (p1.y / height) * 6.5;
+          cat1.squish = 0.4;
 
           cat2.x = p2.x;
-          cat2.y = Math.min(-cat2.radius - 20, p2.y - 140 - (imgIdx * 8 + 6));
+          cat2.y = -cat2.radius - 40 - stagger2;
           cat2.vx = (Math.random() - 0.5) * 0.3;
-          cat2.vy = 5.0 + Math.random() * 2.5;
-          cat2.squish = 0.35;
+          cat2.vy = 6.5 + (p2.y / height) * 6.5;
+          cat2.squish = 0.4;
         }
       }
     }
@@ -270,8 +273,6 @@ export default function FloatingCatCanvas({ paused = false }) {
       if (dropStarted) return;
       dropStarted = true;
       computeHomePositions(true);
-      setTimeout(() => computeHomePositions(false), 150);
-      setTimeout(() => computeHomePositions(false), 600);
     };
 
     const allImagesReady = images.every((img) => img.complete && img.naturalWidth > 0);

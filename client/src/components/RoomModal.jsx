@@ -88,7 +88,7 @@ export default function RoomModal({
         <div className="landing-hero">
           {/* Logo & Brand Wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '8px' }}>
-            <div className="brand-logo" style={{ width: '64px', height: '64px' }}>
+            <div className="brand-logo brand-logo-landing" style={{ width: '64px', height: '64px' }}>
               <img src={logoImg} alt="Meowvie Logo" className="brand-logo-img" />
             </div>
             {/* ── Wordmark Title & Stamped Ticket Badge ── */}
