@@ -5,6 +5,7 @@ import {
   RotateCcw,
   RotateCw,
   Volume2,
+  Volume1,
   VolumeX,
   Maximize,
   Minimize,
@@ -81,6 +82,12 @@ export default function VideoPlayer({
   const [ambientGlow, setAmbientGlow] = useState(true);
   const [isGeneratingDemo, setIsGeneratingDemo] = useState(false);
   const [videoError, setVideoError] = useState(null);
+
+  // Volume OSD overlay state
+  const [showVolumePopup, setShowVolumePopup] = useState(false);
+  const [volumePopupLevel, setVolumePopupLevel] = useState(1);
+  const [volumePopupMuted, setVolumePopupMuted] = useState(false);
+  const volumePopupTimerRef = useRef(null);
 
   // MKV Metadata (Audio Settings & Multi-Audio Tracks)
   const [mkvData, setMkvData] = useState(null);
@@ -437,23 +444,72 @@ export default function VideoPlayer({
     setHoverTime(null);
   };
 
+  // Volume OSD Popup trigger (auto fades out after 1 second)
+  const triggerVolumeOverlay = useCallback((level, muted) => {
+    setVolumePopupLevel(level);
+    setVolumePopupMuted(muted);
+    setShowVolumePopup(true);
+
+    if (volumePopupTimerRef.current) {
+      clearTimeout(volumePopupTimerRef.current);
+    }
+    volumePopupTimerRef.current = setTimeout(() => {
+      setShowVolumePopup(false);
+      volumePopupTimerRef.current = null;
+    }, 1000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (volumePopupTimerRef.current) {
+        clearTimeout(volumePopupTimerRef.current);
+      }
+    };
+  }, []);
+
   // Volume & Mute
   const handleVolumeChange = (e) => {
     const val = parseFloat(e.target.value);
     setVolume(val);
+    const muted = val === 0;
     if (videoRef.current) {
       videoRef.current.volume = val;
-      videoRef.current.muted = val === 0;
+      videoRef.current.muted = muted;
     }
-    setIsMuted(val === 0);
+    setIsMuted(muted);
+    triggerVolumeOverlay(val, muted);
   };
 
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     if (!videoRef.current) return;
     const newMuted = !isMuted;
     videoRef.current.muted = newMuted;
     setIsMuted(newMuted);
-  };
+    let targetVol = volume;
+    if (!newMuted && volume === 0) {
+      targetVol = 0.5;
+      setVolume(0.5);
+      if (videoRef.current) videoRef.current.volume = 0.5;
+    }
+    triggerVolumeOverlay(newMuted ? 0 : targetVol, newMuted);
+  }, [isMuted, volume, triggerVolumeOverlay]);
+
+  const adjustVolume = useCallback((delta) => {
+    setVolume((prevVol) => {
+      const current = isMuted ? 0 : prevVol;
+      let newVol = Math.round((current + delta) * 100) / 100;
+      newVol = Math.max(0, Math.min(1, newVol));
+      const muted = newVol === 0;
+
+      if (videoRef.current) {
+        videoRef.current.volume = newVol;
+        videoRef.current.muted = muted;
+      }
+      setIsMuted(muted);
+      triggerVolumeOverlay(newVol, muted);
+      return newVol;
+    });
+  }, [isMuted, triggerVolumeOverlay]);
 
   // Fullscreen: Expands the video container to fill the entire physical screen (F11 effect)
   const toggleFullscreen = () => {
@@ -561,12 +617,17 @@ export default function VideoPlayer({
     return () => clearTimeout(t);
   }, [remoteAction, onShowToast]);
 
-  // Keyboard Shortcuts: Space (Play/Pause), Left Arrow (-10s), Right Arrow (+10s), M (Mute), F (Fullscreen)
+  // Keyboard Shortcuts: Space (Play/Pause), Left/Right Arrow (Seek), Up/Down Arrow (Volume), M (Mute), F (Fullscreen)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Never intercept if user is typing in chat, inputs, or contentEditable
+      // Never intercept if user is typing in chat, text inputs, or contentEditable
       const tag = document.activeElement?.tagName;
-      if (['INPUT', 'TEXTAREA'].includes(tag) || document.activeElement?.isContentEditable) {
+      const isTextInput = (
+        (tag === 'INPUT' && document.activeElement?.type !== 'range') ||
+        tag === 'TEXTAREA' ||
+        document.activeElement?.isContentEditable
+      );
+      if (isTextInput) {
         return;
       }
 
@@ -588,6 +649,21 @@ export default function VideoPlayer({
         e.stopPropagation();
         handleRelativeSeek(10);
         setIsCursorActive(true);
+      } else if (e.code === 'ArrowUp' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        e.stopPropagation();
+        adjustVolume(0.05);
+        setIsCursorActive(true);
+      } else if (e.code === 'ArrowDown' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        e.stopPropagation();
+        adjustVolume(-0.05);
+        setIsCursorActive(true);
+      } else if (e.code === 'KeyM' || e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMute();
+        setIsCursorActive(true);
       } else if (e.code === 'KeyF' || e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         toggleFullscreen();
@@ -607,7 +683,7 @@ export default function VideoPlayer({
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [togglePlay, handleRelativeSeek, toggleMute, toggleFullscreen]);
+  }, [togglePlay, handleRelativeSeek, adjustVolume, toggleMute, toggleFullscreen]);
 
   const triggerOpenVideoPicker = () => {
     if (fileInputRef.current) {
@@ -677,6 +753,35 @@ export default function VideoPlayer({
             </span>
           </div>
         )}
+
+        {/* Left-Side Screen Volume OSD Overlay */}
+        <div
+          className={`volume-osd-overlay ${showVolumePopup ? 'visible' : ''}`}
+          aria-live="polite"
+        >
+          <div className="volume-osd-icon">
+            {volumePopupMuted || volumePopupLevel === 0 ? (
+              <VolumeX size={22} />
+            ) : volumePopupLevel < 0.5 ? (
+              <Volume1 size={22} />
+            ) : (
+              <Volume2 size={22} />
+            )}
+          </div>
+          <div className="volume-osd-bar-track">
+            <div
+              className="volume-osd-bar-fill"
+              style={{
+                height: `${volumePopupMuted ? 0 : Math.round(volumePopupLevel * 100)}%`
+              }}
+            />
+          </div>
+          <span className="volume-osd-value">
+            {volumePopupMuted || volumePopupLevel === 0
+              ? '0%'
+              : `${Math.round(volumePopupLevel * 100)}%`}
+          </span>
+        </div>
 
         {/* Top Header Bar inside Video Player - Only pops up when arrow is placed at the extreme top */}
         {videoSrc && !videoError && (
@@ -897,8 +1002,14 @@ export default function VideoPlayer({
                 </button>
 
                 <div className="volume-container">
-                  <button className="ctrl-btn" onClick={toggleMute} title="Mute/Unmute">
-                    {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  <button className="ctrl-btn" onClick={toggleMute} title="Mute/Unmute (M)">
+                    {isMuted || volume === 0 ? (
+                      <VolumeX size={18} />
+                    ) : volume < 0.5 ? (
+                      <Volume1 size={18} />
+                    ) : (
+                      <Volume2 size={18} />
+                    )}
                   </button>
                   <input
                     type="range"
@@ -908,6 +1019,10 @@ export default function VideoPlayer({
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChange}
                     className="volume-slider"
+                    style={{
+                      '--volume-percent': `${isMuted ? 0 : Math.round(volume * 100)}%`
+                    }}
+                    aria-label="Volume"
                   />
                 </div>
 
