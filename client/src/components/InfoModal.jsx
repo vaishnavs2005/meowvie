@@ -95,7 +95,7 @@ export default function InfoModal({ isOpen, onClose }) {
             <div className="step-content">
               <h4>Walkie-Talkie Voice Chat & Subtitles</h4>
               <p>
-                Hold <strong>'Z'</strong> on your keyboard to speak through the built-in push-to-talk walkie-talkie! Drop your <code>.srt</code> subtitle file into the player, and click any <code>@MM:SS</code> timecode in chat to jump right to the scene.
+                Hold <strong>'Ctrl'</strong> on your keyboard to speak through the built-in push-to-talk walkie-talkie! Drop your <code>.srt</code> subtitle file into the player, and click any <code>@MM:SS</code> timecode in chat to jump right to the scene.
               </p>
             </div>
           </div>

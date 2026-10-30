@@ -354,7 +354,7 @@ export default function App() {
         return;
       }
       
-      if ((e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z') && roomId) {
+      if ((e.key === 'Control' || e.code === 'ControlLeft' || e.code === 'ControlRight') && roomId) {
         e.preventDefault();
         
         if (voiceModeRef.current === 'ptt') {
@@ -392,7 +392,7 @@ export default function App() {
         return;
       }
 
-      if (e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z') {
+      if (e.key === 'Control' || e.code === 'ControlLeft' || e.code === 'ControlRight') {
         e.preventDefault();
         if (voiceModeRef.current === 'ptt') {
           handlePttEnd();

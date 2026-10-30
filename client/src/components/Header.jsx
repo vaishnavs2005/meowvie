@@ -26,23 +26,33 @@ export default function Header({
 }) {
   const [copied, setCopied] = useState(false);
   const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState(false);
+  const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
   const voiceMenuRef = useRef(null);
+  const modeMenuRef = useRef(null);
 
   useEffect(() => {
-    if (!isVoiceMenuOpen) return;
+    if (!isVoiceMenuOpen && !isModeMenuOpen) return;
     const handleClickOutside = (e) => {
       if (voiceMenuRef.current && !voiceMenuRef.current.contains(e.target)) {
         setIsVoiceMenuOpen(false);
       }
+      if (modeMenuRef.current && !modeMenuRef.current.contains(e.target)) {
+        setIsModeMenuOpen(false);
+      }
     };
-    const handleKey = (e) => { if (e.key === 'Escape') setIsVoiceMenuOpen(false); };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') {
+        setIsVoiceMenuOpen(false);
+        setIsModeMenuOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKey);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKey);
     };
-  }, [isVoiceMenuOpen]);
+  }, [isVoiceMenuOpen, isModeMenuOpen]);
 
   const handleCopyLink = () => {
     const shareUrl = `${window.location.origin}?room=${roomId}`;
@@ -109,147 +119,210 @@ export default function Header({
       {/* ── RIGHT: Actions + Voice + Mode + User ────────────────── */}
       <div className="header-right">
 
-        {/* Voice controls */}
-        <div className="voice-pill" ref={voiceMenuRef}>
+        {/* Unified Control Box: Voice + Playback Mode */}
+        <div className="header-control-cluster">
 
-          {/* Mic button */}
-          {voiceMode === 'ptt' ? (
+          {/* Voice controls */}
+          <div className="cluster-voice-section" ref={voiceMenuRef}>
+
+            {/* Mic button */}
+            {voiceMode === 'ptt' ? (
+              <button
+                type="button"
+                className={`voice-mic-btn ${isSpeaking ? 'voice-mic-live' : 'voice-mic-idle'}`}
+                onMouseDown={(e) => { if (e.button === 0) onPttStart?.(); }}
+                onMouseUp={() => onPttEnd?.()}
+                onMouseLeave={() => onPttEnd?.()}
+                onTouchStart={(e) => { e.preventDefault(); onPttStart?.(); }}
+                onTouchEnd={(e) => { e.preventDefault(); onPttEnd?.(); }}
+                title={isSpeaking ? 'Transmitting… release to stop' : "Hold 'Ctrl' or press & hold to speak"}
+                aria-label="Push to Talk microphone"
+              >
+                {isSpeaking ? (
+                  <>
+                    <Mic size={15} className="mic-icon" />
+                    <div className="voice-bars" aria-hidden="true">
+                      <span /><span /><span />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <MicOff size={15} className="mic-icon" />
+                    <kbd className="ptt-hint">Ctrl</kbd>
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onToggleMic}
+                className={`voice-mic-btn ${isOpenMicActive ? 'voice-mic-live' : 'voice-mic-idle'}`}
+                title={isOpenMicActive ? "Open Mic is live — click to mute" : "Microphone muted — click to unmute"}
+                aria-label="Toggle microphone mute"
+              >
+                {isOpenMicActive ? (
+                  <>
+                    <Mic size={15} className="mic-icon" />
+                    <div className="voice-bars" aria-hidden="true">
+                      <span /><span /><span />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <MicOff size={15} className="mic-icon" />
+                    <span className="ptt-hint">OFF</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Divider */}
+            <span className="voice-divider" />
+
+            {/* Mode selector trigger */}
             <button
               type="button"
-              className={`voice-mic-btn ${isSpeaking ? 'voice-mic-live' : 'voice-mic-idle'}`}
-              onMouseDown={(e) => { if (e.button === 0) onPttStart?.(); }}
-              onMouseUp={() => onPttEnd?.()}
-              onMouseLeave={() => onPttEnd?.()}
-              onTouchStart={(e) => { e.preventDefault(); onPttStart?.(); }}
-              onTouchEnd={(e) => { e.preventDefault(); onPttEnd?.(); }}
-              title={isSpeaking ? 'Transmitting… release to stop' : "Hold 'Z' or press & hold to speak"}
-              aria-label="Push to Talk microphone"
+              className={`voice-mode-btn ${isVoiceMenuOpen ? 'open' : ''}`}
+              onClick={() => {
+                setIsVoiceMenuOpen(prev => {
+                  if (!prev) setIsModeMenuOpen(false);
+                  return !prev;
+                });
+              }}
+              title={`Mode: ${voiceMode === 'ptt' ? 'Push-to-Talk' : 'Open Mic'} — click to switch`}
+              aria-haspopup="true"
+              aria-expanded={isVoiceMenuOpen}
             >
-              {isSpeaking ? (
-                <>
-                  <Mic size={15} className="mic-icon" />
-                  <div className="voice-bars" aria-hidden="true">
-                    <span /><span /><span />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <MicOff size={15} className="mic-icon" />
-                  <kbd className="ptt-hint">Z</kbd>
-                </>
-              )}
+              <span className="voice-mode-tag">{voiceMode === 'ptt' ? 'PTT' : 'MIC'}</span>
+              <ChevronDown size={11} className={`voice-chevron ${isVoiceMenuOpen ? 'rotated' : ''}`} />
             </button>
+
+            {/* Mode popover */}
+            {isVoiceMenuOpen && (
+              <div className="voice-popover" role="menu">
+                <div className="voice-popover-header">Voice Mode</div>
+
+                <button
+                  type="button"
+                  className={`voice-popover-item ${voiceMode === 'ptt' ? 'selected' : ''}`}
+                  onClick={() => {
+                    if (onSetVoiceMode) onSetVoiceMode('ptt');
+                    else if (voiceMode !== 'ptt') onToggleVoiceMode?.();
+                    setIsVoiceMenuOpen(false);
+                  }}
+                >
+                  <Radio size={14} className="vp-icon" />
+                  <div className="vp-text">
+                    <div className="vp-title">Push-to-Talk <kbd className="vp-kbd">Ctrl</kbd></div>
+                    <div className="vp-desc">Hold Ctrl or button to speak</div>
+                  </div>
+                  {voiceMode === 'ptt' && <Check size={13} className="vp-check" />}
+                </button>
+
+                <button
+                  type="button"
+                  className={`voice-popover-item ${voiceMode === 'open' ? 'selected' : ''}`}
+                  onClick={() => {
+                    if (onSetVoiceMode) onSetVoiceMode('open');
+                    else if (voiceMode !== 'open') onToggleVoiceMode?.();
+                    setIsVoiceMenuOpen(false);
+                  }}
+                >
+                  <Mic size={14} className="vp-icon" />
+                  <div className="vp-text">
+                    <div className="vp-title">Open Mic</div>
+                    <div className="vp-desc">Always-on (use headphones)</div>
+                  </div>
+                  {voiceMode === 'open' && <Check size={13} className="vp-check" />}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Section Divider between Voice and Playback Mode */}
+          <span className="cluster-section-divider" aria-hidden="true" />
+
+          {/* Playback mode controls (styled similar to audio control button) */}
+          {isHost ? (
+            <div className="cluster-mode-wrapper" ref={modeMenuRef}>
+              <button
+                type="button"
+                className={`cluster-mode-btn ${isModeMenuOpen ? 'open' : ''}`}
+                onClick={() => {
+                  setIsModeMenuOpen(prev => {
+                    if (!prev) setIsVoiceMenuOpen(false);
+                    return !prev;
+                  });
+                }}
+                title={`Playback Control: ${controlMode === 'co-op' ? 'Co-op' : 'Host-Only'} — click to switch`}
+                aria-haspopup="true"
+                aria-expanded={isModeMenuOpen}
+              >
+                {controlMode === 'co-op' ? (
+                  <Users size={13} className="cluster-mode-icon" />
+                ) : (
+                  <Shield size={13} className="cluster-mode-icon" />
+                )}
+                <span className="cluster-mode-label">
+                  {controlMode === 'co-op' ? 'Co-op' : 'Host Only'}
+                </span>
+                <ChevronDown size={11} className={`voice-chevron ${isModeMenuOpen ? 'rotated' : ''}`} />
+              </button>
+
+              {/* Mode Popover Menu */}
+              {isModeMenuOpen && (
+                <div className="voice-popover mode-popover" role="menu">
+                  <div className="voice-popover-header">Playback Control</div>
+
+                  <button
+                    type="button"
+                    className={`voice-popover-item ${controlMode === 'co-op' ? 'selected' : ''}`}
+                    onClick={() => {
+                      onToggleControlMode('co-op');
+                      setIsModeMenuOpen(false);
+                    }}
+                  >
+                    <Users size={14} className="vp-icon" />
+                    <div className="vp-text">
+                      <div className="vp-title">Co-op Mode</div>
+                      <div className="vp-desc">Both partners can play, pause & seek</div>
+                    </div>
+                    {controlMode === 'co-op' && <Check size={13} className="vp-check" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`voice-popover-item ${controlMode === 'host-only' ? 'selected' : ''}`}
+                    onClick={() => {
+                      onToggleControlMode('host-only');
+                      setIsModeMenuOpen(false);
+                    }}
+                  >
+                    <Shield size={14} className="vp-icon" />
+                    <div className="vp-text">
+                      <div className="vp-title">Host-Only Mode</div>
+                      <div className="vp-desc">Only you (the host) can control playback</div>
+                    </div>
+                    {controlMode === 'host-only' && <Check size={13} className="vp-check" />}
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
-            <button
-              type="button"
-              onClick={onToggleMic}
-              className={`voice-mic-btn ${isOpenMicActive ? 'voice-mic-live' : 'voice-mic-idle'}`}
-              title={isOpenMicActive ? "Open Mic is live — click to mute" : "Microphone muted — click to unmute"}
-              aria-label="Toggle microphone mute"
+            <div
+              className="cluster-mode-guest"
+              title={controlMode === 'host-only' ? 'Only the room host can control playback' : 'Both partners can control playback'}
             >
-              {isOpenMicActive ? (
-                <>
-                  <Mic size={15} className="mic-icon" />
-                  <div className="voice-bars" aria-hidden="true">
-                    <span /><span /><span />
-                  </div>
-                </>
+              {controlMode === 'host-only' ? (
+                <Shield size={12} color="var(--accent-red)" />
               ) : (
-                <>
-                  <MicOff size={15} className="mic-icon" />
-                  <span className="ptt-hint">OFF</span>
-                </>
+                <Users size={12} color="var(--accent-mustard)" />
               )}
-            </button>
-          )}
-
-          {/* Divider */}
-          <span className="voice-divider" />
-
-          {/* Mode selector trigger */}
-          <button
-            type="button"
-            className={`voice-mode-btn ${isVoiceMenuOpen ? 'open' : ''}`}
-            onClick={() => setIsVoiceMenuOpen(prev => !prev)}
-            title={`Mode: ${voiceMode === 'ptt' ? 'Push-to-Talk' : 'Open Mic'} — click to switch`}
-            aria-haspopup="true"
-            aria-expanded={isVoiceMenuOpen}
-          >
-            <span className="voice-mode-tag">{voiceMode === 'ptt' ? 'PTT' : 'MIC'}</span>
-            <ChevronDown size={11} className={`voice-chevron ${isVoiceMenuOpen ? 'rotated' : ''}`} />
-          </button>
-
-          {/* Mode popover */}
-          {isVoiceMenuOpen && (
-            <div className="voice-popover" role="menu">
-              <div className="voice-popover-header">Voice Mode</div>
-
-              <button
-                type="button"
-                className={`voice-popover-item ${voiceMode === 'ptt' ? 'selected' : ''}`}
-                onClick={() => {
-                  if (onSetVoiceMode) onSetVoiceMode('ptt');
-                  else if (voiceMode !== 'ptt') onToggleVoiceMode?.();
-                  setIsVoiceMenuOpen(false);
-                }}
-              >
-                <Radio size={14} className="vp-icon" />
-                <div className="vp-text">
-                  <div className="vp-title">Push-to-Talk <kbd className="vp-kbd">Z</kbd></div>
-                  <div className="vp-desc">Hold Z or button to speak</div>
-                </div>
-                {voiceMode === 'ptt' && <Check size={13} className="vp-check" />}
-              </button>
-
-              <button
-                type="button"
-                className={`voice-popover-item ${voiceMode === 'open' ? 'selected' : ''}`}
-                onClick={() => {
-                  if (onSetVoiceMode) onSetVoiceMode('open');
-                  else if (voiceMode !== 'open') onToggleVoiceMode?.();
-                  setIsVoiceMenuOpen(false);
-                }}
-              >
-                <Mic size={14} className="vp-icon" />
-                <div className="vp-text">
-                  <div className="vp-title">Open Mic</div>
-                  <div className="vp-desc">Always-on (use headphones)</div>
-                </div>
-                {voiceMode === 'open' && <Check size={13} className="vp-check" />}
-              </button>
+              <span>{controlMode === 'host-only' ? 'Host-Only' : 'Co-op'}</span>
             </div>
           )}
-        </div>
 
-        {/* Control mode toggle (host) / badge (guest) */}
-        {isHost ? (
-          <div className="mode-toggle" title="Playback Control Permission">
-            <button
-              className={`mode-btn ${controlMode === 'co-op' ? 'active' : ''}`}
-              onClick={() => onToggleControlMode('co-op')}
-              title="Both partners can play, pause, and seek"
-            >
-              <Users size={12} /> Co-op
-            </button>
-            <button
-              className={`mode-btn ${controlMode === 'host-only' ? 'active' : ''}`}
-              onClick={() => onToggleControlMode('host-only')}
-              title="Only you (the host) can play, pause, and seek"
-            >
-              <Shield size={12} /> Host Only
-            </button>
-          </div>
-        ) : (
-          <div
-            className="mode-badge-guest"
-            title={controlMode === 'host-only' ? 'Only the room host can control playback' : 'Both partners can control playback'}
-          >
-            {controlMode === 'host-only'
-              ? <Shield size={12} color="var(--accent-red)" />
-              : <Users size={12} color="var(--accent-mustard)" />}
-            <span>{controlMode === 'host-only' ? 'Host-Only' : 'Co-op'}</span>
-          </div>
-        )}
+        </div>
 
         {/* User avatar */}
         {currentUser && (

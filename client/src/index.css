@@ -456,7 +456,106 @@ body {
   background: #fff;
 }
 
-/* ── Voice Pill ─────────────────────────────────────────────────────────── */
+/* ── Unified Header Control Box (Voice + Playback Mode) ─────────────────── */
+.header-control-cluster {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 2px solid var(--border-olive);
+  border-radius: var(--radius-full);
+  padding: 3px 5px;
+  box-shadow: var(--shadow-comic-sm);
+  gap: 2px;
+}
+
+.cluster-voice-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cluster-section-divider {
+  width: 1.5px;
+  height: 18px;
+  background: var(--border-olive);
+  margin: 0 4px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.cluster-mode-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cluster-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  line-height: 1;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+.cluster-mode-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.cluster-mode-btn.open {
+  background: rgba(0, 0, 0, 0.08);
+}
+.cluster-mode-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.cluster-mode-btn:hover .cluster-mode-icon {
+  color: var(--text-dark);
+}
+.cluster-mode-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: 0.01em;
+}
+
+.cluster-mode-guest {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+
+.mode-popover {
+  right: 0;
+  width: 240px;
+}
+
+/* ── Voice Pill (legacy/standalone fallback) ────────────────────────────── */
 .voice-pill {
   position: relative;
   display: flex;
@@ -482,9 +581,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: auto;
+  min-width: 62px;
   height: 28px;
   min-height: 28px;
   max-height: 28px;
@@ -493,7 +591,7 @@ body {
   gap: 5px;
   border: none;
   cursor: pointer;
-  padding: 0 4px;
+  padding: 0 6px;
   border-radius: var(--radius-full);
   font-size: 0.78rem;
   font-weight: 700;
