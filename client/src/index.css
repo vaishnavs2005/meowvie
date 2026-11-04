@@ -66,11 +66,139 @@
   --transition-bounce: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* ── Dark Mode Color Palette ────────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* Brand Colors - Deep Cinema Dark Palette */
+  --bg-cream: #0C0B0A;
+  --bg-cream-tint: #141312;
+  --bg-cream-dark: rgba(255, 255, 255, 0.12);
+  --bg-card: #171614;
+  --bg-card-contrast: #201E1B;
+  
+  --accent-red: #E8402C;
+  --accent-red-hover: #FF543E;
+  --accent-red-active: #CF3421;
+  
+  --accent-mustard: #E7A227;
+  --accent-mustard-hover: #FDBB30;
+  --accent-mustard-light: #2D220F;
+  
+  --stroke-cream: #24211D;
+  --text-dark: #ECE4DA;
+  --text-muted: #B4A99B;
+  --text-light: #FFFFFF;
+  
+  --border-olive: #423B32;
+  --border-subtle: #26221D;
+  
+  --status-connected: #16A34A;
+  --status-warning: #D97706;
+  --status-error: #DC2626;
+  --status-syncing: #E8402C;
+  
+  /* Comic Neo-Brutalist Shadows */
+  --shadow-comic-sm: 2px 2px 0px #000000;
+  --shadow-comic: 4px 4px 0px #000000;
+  --shadow-comic-lg: 6px 6px 0px #000000;
+  --shadow-comic-xl: 8px 8px 0px #000000;
+  --shadow-comic-hover: 2px 2px 0px #000000;
+}
+
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.82);
+}
+
+[data-theme="dark"] .app-header {
+  box-shadow: 0 2px 0px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] body {
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(231, 162, 39, 0.04) 1.5px, transparent 1.5px);
+}
+
+[data-theme="dark"] .landing-page-wrapper {
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(232, 64, 44, 0.04) 1.5px, transparent 1.5px);
+}
+
+/* ── Circular Expanding Theme Transition ────────────────────────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 999999;
+}
+
+.theme-transition-ripple {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  pointer-events: none;
+}
+
+
+[data-theme="dark"] .modal-mode-card {
+  border-color: var(--border-olive);
+  color: var(--text-dark);
+}
+[data-theme="dark"] .modal-mode-card:hover {
+  border-color: var(--accent-mustard);
+}
+[data-theme="dark"] .modal-mode-card.selected {
+  background: rgba(231, 162, 39, 0.16);
+  border-color: var(--accent-mustard);
+  outline: 2px solid var(--border-olive);
+}
+[data-theme="dark"] .modal-mode-card.selected .modal-mode-card-header {
+  color: var(--accent-mustard);
+}
+[data-theme="dark"] .modal-mode-card.selected .modal-mode-card-desc {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .voice-popover-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .voice-popover-item.selected {
+  background: rgba(232, 64, 44, 0.18);
+}
+
+/* Theme toggle button specific styling */
+.hdr-theme-btn {
+  color: var(--text-muted);
+}
+.hdr-theme-btn:hover {
+  color: var(--accent-mustard);
+}
+[data-theme="dark"] .hdr-theme-btn {
+  color: var(--accent-mustard);
+}
+[data-theme="dark"] .hdr-theme-btn:hover {
+  color: #FFE680;
+}
+
 /* Reset & Global */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
 }
 
 html, body, #root {
@@ -366,7 +494,7 @@ body {
 }
 .hdr-info-btn:hover {
   color: var(--accent-red);
-  background: #fff;
+  background: var(--bg-card-contrast);
   transform: scale(1.12) rotate(-4deg);
 }
 
@@ -489,7 +617,7 @@ body {
 .hdr-change-video-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-comic);
-  background: #fff;
+  background: var(--bg-card-contrast);
 }
 
 /* ── Header Speaking Indicator Badge (Shown right next to mic setting button) ─ */
@@ -575,12 +703,15 @@ body {
 }
 
 .cluster-section-divider {
-  width: 1.5px;
-  height: 18px;
+  width: 2px;
+  height: 22px;
+  min-height: 22px;
+  max-height: 22px;
   background: var(--border-olive);
-  margin: 0 4px;
+  margin: 0 6px;
   flex-shrink: 0;
-  opacity: 0.6;
+  opacity: 1;
+  border-radius: 1px;
 }
 
 .cluster-mode-wrapper {
@@ -767,12 +898,13 @@ body {
 /* Divider between mic and mode selector */
 .voice-divider {
   width: 1px;
-  height: 18px;
-  min-height: 18px;
-  max-height: 18px;
+  height: 15px;
+  min-height: 15px;
+  max-height: 15px;
   background: var(--border-olive);
   margin: 0 2px;
   flex-shrink: 0;
+  opacity: 0.35;
 }
 
 /* Mode selector button (PTT / MIC label + chevron) */
@@ -1490,7 +1622,7 @@ body {
   padding: 0;
 }
 .ctrl-btn:hover {
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   color: var(--accent-red);
   transform: translateY(-2px);
   box-shadow: 3px 3px 0px #1A1A1A;
@@ -1911,7 +2043,7 @@ body {
   justify-content: space-between;
   width: 100%;
   padding: 8px 10px;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   border: 2px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -2142,7 +2274,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
 }
 
 .fs-empty-state {
@@ -2199,7 +2331,7 @@ body {
 .fs-chat-input {
   flex: 1;
   min-width: 0;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-full);
   padding: 6px 12px;
@@ -2589,7 +2721,7 @@ body {
 .change-video-footer-btn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-comic);
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
 }
 .change-video-footer-btn:active {
   transform: translate(1px, 1px);
@@ -2740,7 +2872,7 @@ body {
 
 .message-row.mine .message-bubble {
   background: var(--accent-mustard);
-  color: var(--text-dark);
+  color: #1A1A1A;
   border: 2px solid var(--stroke-cream);
   outline: 2px solid #1A1A1A;
   box-shadow: var(--shadow-comic-sm);
@@ -2748,7 +2880,7 @@ body {
 }
 
 .message-row.theirs .message-bubble {
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   color: var(--text-dark);
   border: 2px solid var(--stroke-cream);
   outline: 2px solid var(--border-olive);
@@ -2839,7 +2971,7 @@ body {
 
 .chat-input {
   flex: 1;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   border: 2px solid var(--border-olive);
   border-radius: var(--radius-full);
   padding: 9px 16px;
@@ -3111,7 +3243,7 @@ body {
 }
 
 .form-input {
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   border: 2px solid var(--border-olive);
   border-radius: var(--radius-md);
   padding: 9px 14px;
@@ -3136,7 +3268,8 @@ body {
 
 .modal-mode-card {
   padding: 8px 10px;
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
+  color: var(--text-dark);
   border: 2px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -3162,6 +3295,7 @@ body {
   gap: 5px;
   font-size: 0.8rem;
   font-weight: 800;
+  color: var(--text-dark);
 }
 .modal-mode-card-desc {
   font-size: 0.68rem;
@@ -3752,7 +3886,7 @@ body {
 }
 .player-track-pill.clickable:hover {
   transform: translateY(-1px);
-  background: #FFFFFF;
+  background: var(--bg-card-contrast);
   box-shadow: var(--shadow-comic-sm);
 }
 

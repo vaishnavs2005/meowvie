@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, Users, Shield, Radio, Copy, Upload, Mic, MicOff, HelpCircle, ChevronDown } from 'lucide-react';
+import { Check, Users, Shield, Radio, Copy, Upload, Mic, MicOff, HelpCircle, ChevronDown, Sun, Moon } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import titleImg from '../assets/title.png';
 
@@ -25,6 +25,8 @@ export default function Header({
   onPttStart,
   onPttEnd,
   className = '',
+  theme = 'light',
+  onToggleTheme,
 }) {
   const [copied, setCopied] = useState(false);
   const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState(false);
@@ -95,6 +97,14 @@ export default function Header({
           aria-label="Help"
         >
           <HelpCircle size={16} />
+        </button>
+        <button
+          className="hdr-info-btn hdr-theme-btn"
+          onClick={onToggleTheme}
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
       </div>
 

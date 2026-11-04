@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import Header from './components/Header';
 import VideoPlayer from './components/VideoPlayer';
 import ChatPanel from './components/ChatPanel';
@@ -56,6 +57,93 @@ function RemoteAudio({ stream, userId }) {
 export default function App() {
   const [isAppReady, setIsAppReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
+
+  // Theme State (Light / Dark Mode - Default is light)
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('meowvie-theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      return 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('meowvie-theme', theme);
+    } catch {}
+  }, [theme]);
+
+  const handleToggleTheme = useCallback((e) => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+
+    // Get origin coordinates from button or click position
+    const rect = e?.currentTarget?.getBoundingClientRect?.();
+    const x = rect ? rect.left + rect.width / 2 : (e?.clientX ?? window.innerWidth / 2);
+    const y = rect ? rect.top + rect.height / 2 : (e?.clientY ?? 0);
+
+    // Furthest distance to screen corner
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    // Native circular View Transition
+    if (typeof document.startViewTransition === 'function') {
+      const transition = document.startViewTransition(() => {
+        flushSync(() => {
+          setTheme(nextTheme);
+        });
+        document.documentElement.setAttribute('data-theme', nextTheme);
+      });
+
+      transition.ready.then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${endRadius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 480,
+            easing: 'ease-in-out',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+      });
+      return;
+    }
+
+    // Fallback expanding circular ripple overlay for older browsers
+    const overlay = document.createElement('div');
+    overlay.className = 'theme-transition-ripple';
+    overlay.style.backgroundColor = nextTheme === 'dark' ? '#0C0B0A' : '#F0DFC9';
+    overlay.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+    document.body.appendChild(overlay);
+
+    const anim = overlay.animate(
+      [
+        { clipPath: `circle(0px at ${x}px ${y}px)` },
+        { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` },
+      ],
+      {
+        duration: 450,
+        easing: 'ease-in-out',
+      }
+    );
+
+    anim.onfinish = () => {
+      setTheme(nextTheme);
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.15s ease';
+      setTimeout(() => overlay.remove(), 150);
+    };
+  }, [theme]);
+
 
   const [roomId, setRoomId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -632,6 +720,8 @@ export default function App() {
             onPttStart={handlePttStart}
             onPttEnd={handlePttEnd}
             className={transitionData ? 'cinema-header-enter' : ''}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
           />
 
           {/* Main Cinema Workspace */}

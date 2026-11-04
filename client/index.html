@@ -16,6 +16,21 @@
     <meta name="description" content="Watch identical local movie files in perfect sync with long-distance loved ones. Zero video upload, zero lag, private text chat and reactions." />
     
     <meta name="theme-color" content="#0a0a0f" />
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('meowvie-theme');
+          if (t === 'dark' || t === 'light') {
+            document.documentElement.setAttribute('data-theme', t);
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
     
     <!-- Google Fonts: Titan One & Fredoka for retro comic headlines, Plus Jakarta Sans for UI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
