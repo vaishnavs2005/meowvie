@@ -29,9 +29,9 @@ export default function FullscreenChatOverlay({
   const inputRef = useRef(null);
   const toastTimeoutRef = useRef(null);
   const prevMessagesLengthRef = useRef(messages.length);
-  const ctrlDownRef = useRef(false);
-  const ctrlAccompaniedRef = useRef(false);
-  const ctrlTimeRef = useRef(0);
+  const shiftDownRef = useRef(false);
+  const shiftAccompaniedRef = useRef(false);
+  const shiftTimeRef = useRef(0);
   const recentSentRef = useRef(new Set());
 
   // Helper to reliably identify if a message was sent by the current local user
@@ -79,25 +79,25 @@ export default function FullscreenChatOverlay({
   }, [isOpen]);
 
   // Fullscreen Keyboard Shortcuts:
-  // - Tapping 'Ctrl' (Control): Opens chat and places cursor in field, OR closes chat even while cursor is in field!
+  // - Tapping 'Shift': Opens chat and places cursor in field, OR closes chat even while cursor is in field!
   // - Pressing 'Escape': Closes chat.
   useEffect(() => {
     if (!isFullscreen) return;
 
     const handleKeyDown = (e) => {
-      if (e.key === 'Control') {
-        if (!ctrlDownRef.current) {
-          ctrlDownRef.current = true;
-          ctrlAccompaniedRef.current = false;
-          ctrlTimeRef.current = Date.now();
+      if (e.key === 'Shift' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        if (!shiftDownRef.current) {
+          shiftDownRef.current = true;
+          shiftAccompaniedRef.current = false;
+          shiftTimeRef.current = Date.now();
         }
         return;
       }
 
-      // If user presses another key while holding Ctrl (e.g. Ctrl+C, Ctrl+V, Ctrl+A),
-      // mark it as accompanied so releasing Ctrl does NOT toggle the chat window
-      if (ctrlDownRef.current) {
-        ctrlAccompaniedRef.current = true;
+      // If user presses another key while holding Shift (e.g. Shift+A, Shift+1, etc.),
+      // mark it as accompanied so releasing Shift does NOT toggle the chat window
+      if (shiftDownRef.current) {
+        shiftAccompaniedRef.current = true;
       }
 
       // Handle Escape key to dismiss chat
@@ -109,19 +109,19 @@ export default function FullscreenChatOverlay({
     };
 
     const handleKeyUp = (e) => {
-      if (e.key === 'Control') {
-        const wasAccompanied = ctrlAccompaniedRef.current;
-        const duration = Date.now() - ctrlTimeRef.current;
-        ctrlDownRef.current = false;
-        ctrlAccompaniedRef.current = false;
+      if (e.key === 'Shift' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        const wasAccompanied = shiftAccompaniedRef.current;
+        const duration = Date.now() - shiftTimeRef.current;
+        shiftDownRef.current = false;
+        shiftAccompaniedRef.current = false;
 
-        // Standalone tap of Control (not part of Ctrl+C, Ctrl+V, etc.)
+        // Standalone tap of Shift (not part of Shift+A, Shift+?, etc.)
         if (!wasAccompanied && duration < 800) {
           e.preventDefault();
           e.stopPropagation();
 
           if (isOpen) {
-            // Even though cursor is in the field, clicking/tapping Control closes it!
+            // Even though cursor is in the field, clicking/tapping Shift closes it!
             setIsOpen(false);
           } else {
             // Opens chat and places cursor directly in the field
@@ -401,13 +401,13 @@ export default function FullscreenChatOverlay({
               <MessageSquare size={15} color="var(--accent-red)" />
               <span>Party Chat</span>
               <span className="fs-chat-count">({messages.length})</span>
-              <span className="fs-chat-kbd-hint" title="Press Ctrl to close">Ctrl</span>
+              <span className="fs-chat-kbd-hint" title="Press Shift to close">Shift</span>
             </div>
             <button
               type="button"
               className="fs-chat-close-btn"
               onClick={toggleChat}
-              title="Close chat (Ctrl / Esc)"
+              title="Close chat (Shift / Esc)"
               aria-label="Close chat"
             >
               <X size={18} />
@@ -489,7 +489,7 @@ export default function FullscreenChatOverlay({
               ref={inputRef}
               type="text"
               className="fs-chat-input"
-              placeholder="Reply to partner... (Ctrl or Esc to close)"
+              placeholder="Reply to partner... (Shift or Esc to close)"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => {
@@ -518,7 +518,7 @@ export default function FullscreenChatOverlay({
         type="button"
         className={`fullscreen-chat-btn ${isOpen ? 'active' : ''}`}
         onClick={toggleChat}
-        title={isOpen ? "Close Party Chat (Ctrl / Esc)" : "Open Party Chat (Ctrl)"}
+        title={isOpen ? "Close Party Chat (Shift / Esc)" : "Open Party Chat (Shift)"}
         aria-label="Toggle Party Chat"
       >
         {isOpen ? <X size={22} /> : <MessageSquare size={22} />}
