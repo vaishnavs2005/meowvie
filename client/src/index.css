@@ -1944,6 +1944,82 @@ body {
 }
 
 
+
+/* ── Play / Pause Center OSD Pop-up ────────────────────────────────────── */
+@keyframes playPausePopIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.65);
+  }
+  28% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.25);
+  }
+}
+
+.play-pause-osd-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 95;
+  user-select: none;
+  animation: playPausePopIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.play-pause-osd-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: rgba(20, 18, 16, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2.5px solid var(--stroke-cream);
+  outline: 2px solid var(--border-olive);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65), 3px 3px 0px #000000;
+  color: #FFFFFF;
+}
+
+.play-pause-osd-icon {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+}
+
+.play-pause-osd-icon.play-icon {
+  margin-left: 5px; /* Optically center triangle in circle */
+  color: var(--accent-mustard, #E7A227);
+}
+
+.play-pause-osd-icon.pause-icon {
+  color: #FFFFFF;
+}
+
+@media (max-width: 600px) {
+  .play-pause-osd-badge {
+    width: 68px;
+    height: 68px;
+  }
+  .play-pause-osd-badge svg {
+    width: 34px;
+    height: 34px;
+  }
+}
+
 /* Time Display Badge */
 .time-display {
   display: inline-flex;

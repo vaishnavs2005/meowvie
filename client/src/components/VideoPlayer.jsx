@@ -95,6 +95,11 @@ export default function VideoPlayer({
   const [seekAnimKey, setSeekAnimKey] = useState(0);
   const seekPopupTimerRef = useRef(null);
 
+  // Play/Pause Center OSD Overlay state
+  const [playPausePopup, setPlayPausePopup] = useState(null); // 'play' | 'pause' | null
+  const [playPauseAnimKey, setPlayPauseAnimKey] = useState(0);
+  const playPauseTimerRef = useRef(null);
+
   // MKV Metadata (Audio Settings & Multi-Audio Tracks)
   const [mkvData, setMkvData] = useState(null);
   const [selectedAudioTrackIndex, setSelectedAudioTrackIndex] = useState(0);
@@ -369,6 +374,7 @@ export default function VideoPlayer({
         .then(() => {
           setIsPlaying(true);
           setVideoError(null);
+          triggerPlayPauseOverlay('play');
           if (!isApplyingRemote.current && onPlaybackAction) {
             onPlaybackAction('play', video.currentTime);
           }
@@ -384,6 +390,7 @@ export default function VideoPlayer({
     } else {
       video.pause();
       setIsPlaying(false);
+      triggerPlayPauseOverlay('pause');
       if (!isApplyingRemote.current && onPlaybackAction) {
         onPlaybackAction('pause', video.currentTime);
       }
@@ -420,6 +427,20 @@ export default function VideoPlayer({
     }, 1000);
   }, []);
 
+  // Play/Pause Center OSD Popup trigger (auto-fades after animation)
+  const triggerPlayPauseOverlay = useCallback((action) => {
+    setPlayPausePopup(action);
+    setPlayPauseAnimKey((k) => k + 1);
+
+    if (playPauseTimerRef.current) {
+      clearTimeout(playPauseTimerRef.current);
+    }
+    playPauseTimerRef.current = setTimeout(() => {
+      setPlayPausePopup(null);
+      playPauseTimerRef.current = null;
+    }, 800);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (volumePopupTimerRef.current) {
@@ -427,6 +448,9 @@ export default function VideoPlayer({
       }
       if (seekPopupTimerRef.current) {
         clearTimeout(seekPopupTimerRef.current);
+      }
+      if (playPauseTimerRef.current) {
+        clearTimeout(playPauseTimerRef.current);
       }
     };
   }, []);
@@ -620,6 +644,7 @@ export default function VideoPlayer({
       video.play()
         .then(() => {
           setIsPlaying(true);
+          triggerPlayPauseOverlay('play');
         })
         .catch((err) => {
           console.warn('Remote play blocked by browser:', err);
@@ -634,6 +659,7 @@ export default function VideoPlayer({
       video.currentTime = targetTime;
       video.pause();
       setIsPlaying(false);
+      triggerPlayPauseOverlay('pause');
     }
 
     const t = setTimeout(() => {
@@ -829,6 +855,23 @@ export default function VideoPlayer({
           </div>
         </div>
 
+        {/* Center Play/Pause OSD Pop-up Overlay */}
+        {playPausePopup && (
+          <div
+            key={playPauseAnimKey}
+            className={`play-pause-osd-overlay ${playPausePopup}`}
+            aria-hidden="true"
+          >
+            <div className="play-pause-osd-badge">
+              {playPausePopup === 'play' ? (
+                <Play size={44} className="play-pause-osd-icon play-icon" />
+              ) : (
+                <Pause size={44} className="play-pause-osd-icon pause-icon" />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Top Header Bar inside Video Player - Only pops up when arrow is placed at the extreme top */}
         {videoSrc && !videoError && (
           <div
@@ -879,6 +922,10 @@ export default function VideoPlayer({
             onLoadedMetadata={handleLoadedMetadata}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlay();
+            }}
             onDoubleClick={toggleFullscreen}
             onError={(e) => {
               console.error('HTML5 video playback error:', e);
