@@ -167,11 +167,10 @@ export async function generateSampleMovieBlob(durationSeconds = 10, title = 'Meo
         ctx.font = 'bold 60px "JetBrains Mono", monospace';
         ctx.fillText(timecodeStr, cx, cy + 30);
 
-        // Dynamic countdown banner
-        const countdownVal = Math.max(1, durationSeconds - currentSec);
+        // Dynamic cinema reel test banner
         ctx.fillStyle = '#ff2a6d';
         ctx.font = 'bold 24px "Outfit", sans-serif';
-        ctx.fillText(`COUNTDOWN: ${countdownVal}s  •  SYNCHRONIZED TEST REEL`, cx, cy + 90);
+        ctx.fillText(`CINEMA TEST REEL  •  SYNCHRONIZED PLAYBACK`, cx, cy + 90);
 
         // Frame status
         ctx.fillStyle = '#94a3b8';

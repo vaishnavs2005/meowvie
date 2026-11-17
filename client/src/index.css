@@ -220,6 +220,16 @@ body {
     radial-gradient(rgba(231, 162, 39, 0.08) 1.5px, transparent 1.5px);
   background-size: 24px 24px, 48px 48px;
   background-position: 0 0, 12px 12px;
+  animation: moveDotsBody 4.2s linear infinite;
+}
+
+@keyframes moveDotsBody {
+  0% {
+    background-position: 0 0, 12px 12px;
+  }
+  100% {
+    background-position: 48px 48px, 60px 60px;
+  }
 }
 
 /* Scrollbars */
@@ -411,31 +421,29 @@ body {
   transform: rotate(2deg) scale(1.1);
 }
 
-/* Cat logo cartoon drop from above on landing */
-@keyframes cat-logo-drop-in {
+/* Cat logo cartoon pop-in on landing */
+@keyframes cat-logo-pop-in {
   0% {
-    transform: translateY(-400px) rotate(-18deg) scale(0.6);
+    transform: scale(0) rotate(-16deg);
     opacity: 0;
   }
-  45% {
+  60% {
+    transform: scale(1.22) rotate(6deg);
     opacity: 1;
   }
-  65% {
-    transform: translateY(14px) rotate(6deg) scale(1.18, 0.82);
-  }
   80% {
-    transform: translateY(-10px) rotate(-4deg) scale(0.96, 1.04);
+    transform: scale(0.94) rotate(-3deg);
   }
   92% {
-    transform: translateY(4px) rotate(1deg) scale(1.02, 0.98);
+    transform: scale(1.04) rotate(1deg);
   }
   100% {
-    transform: translateY(0) rotate(-2deg) scale(1.12);
+    transform: scale(1) rotate(0deg);
   }
 }
 
 .brand-logo-landing {
-  animation: cat-logo-drop-in 0.9s cubic-bezier(0.25, 1, 0.35, 1) both;
+  animation: cat-logo-pop-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   animation-delay: 0.12s;
   will-change: transform, opacity;
 }
@@ -3129,6 +3137,7 @@ body {
     radial-gradient(rgba(232, 64, 44, 0.06) 2px, transparent 2px);
   background-size: 28px 28px, 56px 56px;
   background-position: 0 0, 14px 14px;
+  animation: moveDotsLanding 4.9s linear infinite;
   overflow: hidden;
   height: 100vh;
   max-height: 100vh;
@@ -3139,6 +3148,15 @@ body {
   padding: clamp(10px, 2vh, 24px) 20px;
   border: 3px solid var(--border-olive);
   box-sizing: border-box;
+}
+
+@keyframes moveDotsLanding {
+  0% {
+    background-position: 0 0, 14px 14px;
+  }
+  100% {
+    background-position: 56px 56px, 70px 70px;
+  }
 }
 
 .landing-page-wrapper.landing-leaving {
@@ -3544,6 +3562,35 @@ body {
   font-size: 0.84rem;
   color: var(--text-muted);
   line-height: 1.45;
+}
+
+.info-tips-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.info-tip-item {
+  background: var(--bg-cream-tint);
+  border: 1.5px solid var(--border-olive);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 1px 1px 0px #1A1A1A;
+}
+.info-tip-item .tip-badge {
+  font-weight: 800;
+  color: var(--accent-red);
+  font-size: 0.76rem;
+}
+@media (max-width: 520px) {
+  .info-tips-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* File Mismatch Alert Banner */
@@ -4721,5 +4768,609 @@ body {
   100% {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+
+/* ==========================================================================
+   CINEMA PROJECTOR STARTUP ANIMATION OVERLAY (Movie Loaded Event)
+   ========================================================================== */
+
+.projector-startup-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  background: #09080c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.45s ease-out;
+}
+
+.projector-startup-stage.blooming {
+  pointer-events: none;
+}
+
+/* Ambient Theater Vignette */
+.projector-ambient-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 18% 50%, rgba(231, 162, 39, 0.12) 0%, rgba(7, 6, 10, 0.85) 60%, #050407 100%);
+  z-index: 1;
+}
+
+/* 35mm Film Grain / Gate Weave Texture */
+.projector-film-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.18;
+  background-image: radial-gradient(#FFE8A3 1px, transparent 1px);
+  background-size: 4px 4px;
+  animation: filmGrainJitter 0.12s steps(2) infinite;
+}
+
+@keyframes filmGrainJitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(1px, 1px); }
+}
+
+/* Skip Button Top-Right */
+.projector-skip-pill {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg-card, #FAF2E6);
+  border: 2px solid var(--border-olive, #4A4A3C);
+  border-radius: 9999px;
+  box-shadow: 2px 2px 0px #1A1A1A;
+  color: var(--text-dark, #1A1A1A);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.projector-skip-pill:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #1A1A1A;
+  background: var(--accent-mustard, #E7A227);
+  color: #1A1A1A;
+}
+
+.projector-skip-kbd {
+  font-size: 9px;
+  background: #1A1A1A;
+  color: #FAF2E6;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+/* Main Perspective Scene Layout */
+.projector-scene-layout {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  max-width: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  box-sizing: border-box;
+}
+
+/* ── Left Side: Projector Unit ── */
+.projector-unit-wrapper {
+  position: relative;
+  flex: 0 0 240px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: projectorVibrate 0.08s linear infinite;
+}
+
+@keyframes projectorVibrate {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-0.75px) rotate(0.1deg); }
+  100% { transform: translateY(0.5px); }
+}
+
+.projector-shadow {
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  height: 18px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.projector-machine-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(4px 6px 12px rgba(0, 0, 0, 0.7));
+}
+
+/* Moving Threaded Film Dash */
+.projector-film-thread {
+  animation: filmDashMove 0.12s linear infinite;
+}
+
+@keyframes filmDashMove {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 6; }
+}
+
+/* Cooling Vent Louvers Warm Glow */
+.projector-louvers rect {
+  animation: louverGlow 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes louverGlow {
+  0% { opacity: 0.55; fill: #E8402C; }
+  100% { opacity: 0.95; fill: #FFE8A3; }
+}
+
+/* Analog Voltage Meter Needle Jitter */
+.projector-meter-needle {
+  transform-origin: 0 0;
+  animation: meterJitter 0.15s ease-in-out infinite alternate;
+}
+
+@keyframes meterJitter {
+  0% { transform: rotate(-5deg); }
+  100% { transform: rotate(12deg); }
+}
+
+/* ── Lens Core Flare & Anamorphic Streak ── */
+.projector-lamp-flare {
+  position: absolute;
+  top: 48.5%;
+  right: -12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 12;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+
+.projector-startup-stage.projecting .projector-lamp-flare,
+.projector-startup-stage.blooming .projector-lamp-flare {
+  opacity: 1;
+}
+
+.flare-core-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(circle, #FFFFFF 0%, #FFF3B0 40%, rgba(232, 64, 44, 0.4) 75%, transparent 100%);
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: flarePulse 0.18s ease-in-out infinite alternate;
+}
+
+.flare-horizontal-streak {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(110, 231, 183, 0.7) 35%, #FFFFFF 50%, rgba(255, 232, 163, 0.8) 65%, transparent 100%);
+  filter: blur(0.5px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.flare-halo-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border: 1.5px solid rgba(255, 218, 128, 0.45);
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: flareRingPulse 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes flarePulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.85; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+@keyframes flareRingPulse {
+  0% { transform: translate(-50%, -50%) scale(0.95); }
+  100% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* ── 2. Middle: Connecting Ray of Light (Bridges Projector Lens to Screen) ── */
+.projector-connecting-ray {
+  position: relative;
+  flex: 1;
+  height: 260px;
+  margin-left: -12px;
+  margin-right: -4px;
+  z-index: 8;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ray-volumetric-beam {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0% 45%, 100% 3%, 100% 97%, 0% 55%);
+  filter: drop-shadow(0 0 18px rgba(255, 235, 170, 0.45));
+}
+
+.ray-beam-outer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 242, 195, 0.6) 20%,
+    rgba(245, 186, 66, 0.35) 60%,
+    rgba(231, 162, 39, 0.18) 100%
+  );
+}
+
+.ray-beam-core {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0% 48%, 100% 20%, 100% 80%, 0% 52%);
+  background: linear-gradient(
+    90deg,
+    #FFFFFF 0%,
+    rgba(255, 255, 245, 0.9) 25%,
+    rgba(255, 235, 170, 0.4) 75%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+}
+
+/* 24fps Shutter Blade Flicker */
+.ray-beam-flicker {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  mix-blend-mode: overlay;
+  animation: rayShutterFlicker 0.125s steps(3) infinite;
+}
+
+@keyframes rayShutterFlicker {
+  0% { opacity: 0.8; }
+  33% { opacity: 1; }
+  66% { opacity: 0.7; }
+  100% { opacity: 0.95; }
+}
+
+/* Floating Illuminated Dust Motes */
+.ray-dust-chamber {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ray-dust-mote {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #FFFDF8;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #FFE8A3;
+  opacity: 0.85;
+  animation: dustDrift 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes dustDrift {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
+  50% { transform: translate(12px, -8px) scale(1.2); opacity: 0.95; }
+  100% { transform: translate(22px, 6px) scale(0.9); opacity: 0.4; }
+}
+
+/* ── 3. Right: The Projected Screen Target ── */
+.projector-screen-target {
+  position: relative;
+  z-index: 10;
+  flex: 0 0 460px;
+  width: 460px;
+  display: flex;
+  align-items: center;
+}
+
+.projected-canvas-frame {
+  position: relative;
+  width: 460px;
+  height: 260px;
+  padding: 24px 30px;
+  background: #131118;
+  border: 4px solid var(--accent-mustard, #E7A227);
+  border-radius: 18px;
+  box-shadow:
+    0 0 35px rgba(231, 162, 39, 0.4),
+    0 0 80px rgba(255, 232, 163, 0.2),
+    inset 0 0 30px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  animation: projectedScreenJitter 0.08s steps(2) infinite;
+  overflow: hidden;
+}
+
+/* Illuminated Light Wash on Screen from the Projector Ray */
+.projected-light-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at 12% 50%, rgba(255, 248, 220, 0.35) 0%, rgba(231, 162, 39, 0.12) 55%, transparent 85%);
+  animation: lightWashFlicker 0.14s steps(2) infinite;
+}
+
+@keyframes lightWashFlicker {
+  0% { opacity: 0.85; }
+  50% { opacity: 1; }
+  100% { opacity: 0.9; }
+}
+
+@keyframes projectedScreenJitter {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(0.5px, -0.5px); }
+  100% { transform: translate(-0.5px, 0.5px); }
+}
+
+.projected-gate-flicker {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(circle at center, transparent 65%, rgba(0, 0, 0, 0.6) 100%);
+  animation: gateFlicker 0.16s steps(2) infinite;
+}
+
+@keyframes gateFlicker {
+  0% { opacity: 0.85; }
+  50% { opacity: 1; }
+  100% { opacity: 0.9; }
+}
+
+.projected-crosshair-lines {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  z-index: 3;
+  border: 1px dashed rgba(231, 162, 39, 0.25);
+  border-radius: 10px;
+}
+
+/* ── Retro SMPTE Film Countdown Leader ── */
+.projected-countdown-wrapper {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  animation: countdownSnapIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes countdownSnapIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.countdown-vintage-ring {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border: 3.5px solid var(--accent-mustard, #E7A227);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #25222E 0%, #15131A 100%);
+  box-shadow: 0 0 25px rgba(231, 162, 39, 0.5);
+  overflow: hidden;
+}
+
+.countdown-inner-ring {
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  border: 1.5px dashed rgba(255, 235, 170, 0.55);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.countdown-sweep-arm {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 50%;
+  background: linear-gradient(180deg, var(--accent-red, #E8402C) 0%, transparent 100%);
+  transform-origin: bottom center;
+  animation: sweepClockwise 1s linear infinite;
+  box-shadow: 0 0 6px var(--accent-red, #E8402C);
+}
+
+@keyframes sweepClockwise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.countdown-number {
+  position: relative;
+  z-index: 5;
+  font-family: 'Cabinet Grotesk', var(--font-display, sans-serif);
+  font-size: 56px;
+  font-weight: 900;
+  color: #FFFDF8;
+  text-shadow: 3px 3px 0px #E8402C, 0 0 20px rgba(255, 235, 170, 0.7);
+  line-height: 1;
+  animation: countdownDigitPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes countdownDigitPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.countdown-label {
+  position: relative;
+  z-index: 5;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--accent-mustard, #E7A227);
+  text-shadow: 0 0 8px rgba(231, 162, 39, 0.5);
+}
+
+/* ── Movie Title and Length Reveal Card ── */
+.projected-title-card {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  width: 100%;
+  animation: titleCardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes titleCardPop {
+  0% { transform: scale(0.9) translateY(8px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.title-card-filename {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 440px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.title-card-text {
+  font-family: 'Cabinet Grotesk', var(--font-display, sans-serif);
+  font-size: 32px;
+  font-weight: 900;
+  color: #FFFDF8;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  text-shadow: 2.5px 2.5px 0px #1A1A1A, 0 0 20px rgba(255, 235, 170, 0.6);
+  max-width: 100%;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.title-card-duration {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: var(--accent-mustard, #E7A227);
+  background: rgba(231, 162, 39, 0.12);
+  padding: 5px 16px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(231, 162, 39, 0.4);
+  box-shadow: 0 0 12px rgba(231, 162, 39, 0.2);
+}
+
+.title-card-duration .duration-icon {
+  color: var(--accent-mustard, #E7A227);
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(231, 162, 39, 0.5));
+}
+
+/* ── Final Warm Bloom Wash (Transitions into Video) ── */
+.projector-bloom-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 45% 50%, #FFFFFF 0%, #FFE9B3 40%, #E8402C 80%, #15131A 100%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 0.35s ease-in;
+}
+
+.projector-startup-stage.blooming .projector-bloom-flash {
+  opacity: 1;
+}
+
+/* Responsive adjustments for mobile/smaller stages */
+@media (max-width: 768px) {
+  .projector-scene-layout {
+    flex-direction: column;
+    padding: 16px;
+  }
+  .projector-unit-wrapper {
+    flex: 0 0 160px;
+    height: 180px;
+  }
+  .projector-connecting-ray {
+    margin: -10px 0;
+    width: 100%;
+    height: 120px;
+  }
+  .ray-volumetric-beam {
+    clip-path: polygon(45% 0%, 55% 0%, 100% 100%, 0% 100%);
+  }
+  .projector-screen-target {
+    flex: none;
+    width: 100%;
+  }
+  .title-card-text {
+    font-size: 18px;
+    max-width: 260px;
+  }
+  .countdown-vintage-ring {
+    width: 80px;
+    height: 80px;
+  }
+  .countdown-number {
+    font-size: 38px;
   }
 }

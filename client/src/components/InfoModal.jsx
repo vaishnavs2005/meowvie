@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Film, CheckCircle2, Zap, Heart, ShieldCheck, HelpCircle, Users } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
 export default function InfoModal({ isOpen, onClose }) {
@@ -10,19 +10,19 @@ export default function InfoModal({ isOpen, onClose }) {
       <div
         className="modal-card info-modal-card"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }}
+        style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="brand-logo" style={{ width: '48px', height: '48px' }}>
+            <div className="brand-logo" style={{ width: '44px', height: '44px' }}>
               <img src={logoImg} alt="Meowvie Logo" className="brand-logo-img" />
             </div>
             <div>
-              <h2 className="sticker-title-red" style={{ fontSize: '1.6rem' }}>
+              <h2 className="sticker-title-red" style={{ fontSize: '1.45rem', marginBottom: '2px' }}>
                 How Meowvie Works
               </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                Everything you and your movie partner need to know
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600, margin: 0 }}>
+                Quick 3-step guide for you and your friends
               </p>
             </div>
           </div>
@@ -35,7 +35,8 @@ export default function InfoModal({ isOpen, onClose }) {
               borderRadius: '50%',
               background: 'var(--bg-cream-tint)',
               border: '2px solid var(--border-olive)',
-              boxShadow: '1px 1px 0px #1A1A1A'
+              boxShadow: '1px 1px 0px #1A1A1A',
+              cursor: 'pointer'
             }}
             aria-label="Close modal"
           >
@@ -44,59 +45,67 @@ export default function InfoModal({ isOpen, onClose }) {
         </div>
 
         <div className="info-sections">
-          {/* Crucial Requirement */}
-          <div className="info-box requirement">
-            <div className="info-box-header">
-              <CheckCircle2 size={18} color="var(--accent-red)" />
-              <strong style={{ color: 'var(--text-dark)' }}>Requirement: Identical Movie Files</strong>
+          {/* Golden Rule */}
+          <div className="info-box requirement" style={{ padding: '12px 14px', marginBottom: '16px' }}>
+            <div className="info-box-header" style={{ marginBottom: '4px' }}>
+              <CheckCircle2 size={17} color="var(--accent-red)" />
+              <strong style={{ color: 'var(--text-dark)', fontSize: '0.88rem' }}>The Only Rule: Same Movie File</strong>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-dark)', lineHeight: 1.45 }}>
-              Both you and your partner must have the <strong>exact same video file</strong> (same duration, release, and cut) saved locally on your own devices.
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-dark)', lineHeight: 1.45, margin: 0 }}>
+              Everyone in the room must select the <strong>exact same video file</strong> locally. Nothing is uploaded to any server—it stays 100% private with zero buffering.
             </p>
           </div>
 
-          {/* Section 1: Why it's Zero Lag */}
-          <div className="info-step">
+          {/* Step 1 */}
+          <div className="info-step" style={{ marginBottom: '12px' }}>
             <div className="step-num">1</div>
             <div className="step-content">
-              <h4>Zero Upload & Zero Lag</h4>
+              <h4>Pick Your Movie</h4>
               <p>
-                When you choose your video file, it is read directly from your device storage via the HTML5 File API. <strong>Your video is never uploaded to any server.</strong> Enjoy 100% original full HD/4K quality, instant scrubbing, and zero buffering.
+                Choose your local video file. It loads instantly in original HD/4K quality.
               </p>
             </div>
           </div>
 
-          {/* Section 2: Bi-directional sync */}
-          <div className="info-step">
+          {/* Step 2 */}
+          <div className="info-step" style={{ marginBottom: '12px' }}>
             <div className="step-num">2</div>
             <div className="step-content">
-              <h4>Shared Playback Controls</h4>
+              <h4>Share the Room Code</h4>
               <p>
-                Only tiny millisecond control signals (play, pause, seek, and drift checks) travel over the network. 
-                Whether <strong>you</strong> pause or <strong>your partner</strong> jumps ahead, both screens mirror each other instantly.
+                Create a room and send the 5-letter code (or invite link) to up to 4 friends (5 viewers max).
               </p>
             </div>
           </div>
 
-          {/* Section 3: Auto-Drift & Resync */}
-          <div className="info-step">
+          {/* Step 3 */}
+          <div className="info-step" style={{ marginBottom: '14px' }}>
             <div className="step-num">3</div>
             <div className="step-content">
-              <h4>Heartbeat Drift Correction</h4>
+              <h4>Watch Together in Sync</h4>
               <p>
-                Every 3 seconds, the app checks if both players are on the exact same frame. If anyone drifts by more than 1.5 seconds, the player automatically snaps back into sync. You can also tap <strong>"Resync"</strong> at any time.
+                Play, pause, or seek together in lockstep. If anyone falls behind, Meowvie snaps you right back in sync automatically.
               </p>
             </div>
           </div>
 
-          {/* Section 4: Voice Chat, Subtitles & Reactions */}
-          <div className="info-step">
-            <div className="step-num">4</div>
-            <div className="step-content">
-              <h4>Walkie-Talkie Voice Chat & Subtitles</h4>
-              <p>
-                Hold <strong>'Ctrl'</strong> on your keyboard to speak through the built-in push-to-talk walkie-talkie! Drop your <code>.srt</code> subtitle file into the player, and click any <code>@MM:SS</code> timecode in chat to jump right to the scene.
-              </p>
+          {/* Handy Shortcuts & Tips */}
+          <div className="info-tips-grid">
+            <div className="info-tip-item">
+              <span className="tip-badge">🎙️ Voice Chat</span>
+              <span>Hold <strong>Ctrl</strong> to talk, or toggle Open Mic in the header.</span>
+            </div>
+            <div className="info-tip-item">
+              <span className="tip-badge">💬 Fullscreen Chat</span>
+              <span>Press <strong>Shift</strong> in fullscreen to pop open chat anytime.</span>
+            </div>
+            <div className="info-tip-item">
+              <span className="tip-badge">📝 Subtitles</span>
+              <span>Drag & drop any <code>.srt</code> file right onto the video.</span>
+            </div>
+            <div className="info-tip-item">
+              <span className="tip-badge">⏱️ Jump Scene</span>
+              <span>Click any <code>@MM:SS</code> timecode in chat to jump there together.</span>
             </div>
           </div>
         </div>
@@ -104,7 +113,7 @@ export default function InfoModal({ isOpen, onClose }) {
         <button
           onClick={onClose}
           className="submit-btn"
-          style={{ width: '100%', marginTop: '20px' }}
+          style={{ width: '100%', marginTop: '18px' }}
         >
           🎬 GOT IT, LET'S WATCH!
         </button>

@@ -72,7 +72,13 @@ export default function FloatingCatCanvas({ paused = false }) {
         vAngle: 0,
         squish: 0,
         squishV: 0,
-        currentScale: 1.0,
+        currentScale: 0,
+        popScale: 0,
+        popScaleV: 0,
+        popDelay: 0,
+        isPopping: false,
+        hasPopped: false,
+        sparksSpawned: false,
         isHovered: false,
         isDragging: false,
         dragOffsetX: 0,
@@ -249,47 +255,58 @@ export default function FloatingCatCanvas({ paused = false }) {
         cat2.homeY = p2.y;
 
         if (snapToHome) {
-          // On page load: all cats start completely above the top edge of the screen and fall down naturally
-          const stagger1 = imgIdx * 20;
-          const stagger2 = imgIdx * 20 + 10;
-
+          // On page load: cats pop in place (no falling from above)
           cat1.x = p1.x;
-          cat1.y = -cat1.radius - 40 - stagger1;
-          cat1.vx = (Math.random() - 0.5) * 0.3;
-          cat1.vy = 6.5 + (p1.y / height) * 6.5;
-          cat1.squish = 0.4;
+          cat1.y = p1.y;
+          cat1.vx = 0;
+          cat1.vy = 0;
+          cat1.popScale = 0;
+          cat1.popScaleV = 0;
+          cat1.popDelay = imgIdx * 32 + Math.random() * 12;
+          cat1.isPopping = false;
+          cat1.hasPopped = false;
+          cat1.sparksSpawned = false;
+          cat1.currentScale = 0;
 
           cat2.x = p2.x;
-          cat2.y = -cat2.radius - 40 - stagger2;
-          cat2.vx = (Math.random() - 0.5) * 0.3;
-          cat2.vy = 6.5 + (p2.y / height) * 6.5;
-          cat2.squish = 0.4;
+          cat2.y = p2.y;
+          cat2.vx = 0;
+          cat2.vy = 0;
+          cat2.popScale = 0;
+          cat2.popScaleV = 0;
+          cat2.popDelay = imgIdx * 32 + 18 + Math.random() * 12;
+          cat2.isPopping = false;
+          cat2.hasPopped = false;
+          cat2.sparksSpawned = false;
+          cat2.currentScale = 0;
         }
       }
     }
 
-    let dropStarted = false;
-    const startEntranceDrop = () => {
-      if (dropStarted) return;
-      dropStarted = true;
+    let popStarted = false;
+    let entranceStartTime = 0;
+    const startEntrancePop = () => {
+      if (popStarted) return;
+      popStarted = true;
+      entranceStartTime = Date.now();
       computeHomePositions(true);
     };
 
     const allImagesReady = images.every((img) => img.complete && img.naturalWidth > 0);
     if (allImagesReady) {
-      startEntranceDrop();
+      startEntrancePop();
     } else {
       images.forEach((img) => {
         if (!img.complete) {
           img.addEventListener('load', () => {
             if (images.every((i) => i.complete && i.naturalWidth > 0)) {
-              startEntranceDrop();
+              startEntrancePop();
             }
           }, { once: true });
         }
       });
-      // Safety fallback to guarantee drop starts even if an image fails
-      setTimeout(startEntranceDrop, 800);
+      // Safety fallback to guarantee pop starts even if an image fails
+      setTimeout(startEntrancePop, 800);
     }
 
     // Mouse tracking state
@@ -336,6 +353,10 @@ export default function FloatingCatCanvas({ paused = false }) {
       // Check hover for any cat (generous hit radius)
       let anyHovered = false;
       for (const cat of cats) {
+        if (cat.currentScale < 0.3) {
+          cat.isHovered = false;
+          continue;
+        }
         const d = Math.hypot(cat.x - currentX, cat.y - currentY);
         const hitRadius = Math.max(38, cat.radius * 1.5);
         if (d <= hitRadius) {
@@ -367,6 +388,7 @@ export default function FloatingCatCanvas({ paused = false }) {
       let minD = Infinity;
 
       for (const cat of cats) {
+        if (cat.currentScale < 0.3) continue;
         const d = Math.hypot(cat.x - cx, cat.y - cy);
         const hitRadius = Math.max(40, cat.radius * 1.55);
         if (d <= hitRadius && d < minD) {
@@ -531,6 +553,7 @@ export default function FloatingCatCanvas({ paused = false }) {
         for (let j = i + 1; j < cats.length; j++) {
           const c1 = cats[i];
           const c2 = cats[j];
+          if (c1.currentScale < 0.4 || c2.currentScale < 0.4) continue;
 
           const dx = c2.x - c1.x;
           const dy = c2.y - c1.y;
@@ -679,9 +702,37 @@ export default function FloatingCatCanvas({ paused = false }) {
         cat.squishV *= 0.76;
         cat.squish += cat.squishV;
 
-        // Smooth scale interpolation for hover & drag
-        const targetScale = cat.isDragging ? 1.35 : (cat.isHovered ? 1.25 : 1.0);
-        cat.currentScale += (targetScale - cat.currentScale) * 0.2;
+        // Entrance Pop-In & Scale Interpolation
+        if (!cat.hasPopped) {
+          const elapsed = entranceStartTime ? Date.now() - entranceStartTime : 9999;
+          if (elapsed >= cat.popDelay) {
+            cat.isPopping = true;
+            cat.popScaleV += (1.0 - cat.popScale) * 0.16;
+            cat.popScaleV *= 0.72;
+            cat.popScale += cat.popScaleV;
+
+            // Trigger a quick spark burst at the peak of the pop
+            if (cat.popScale > 1.15 && !cat.sparksSpawned) {
+              cat.sparksSpawned = true;
+              addSparks(cat.x, cat.y, 3);
+            }
+
+            if (Math.abs(cat.popScale - 1.0) < 0.015 && Math.abs(cat.popScaleV) < 0.005) {
+              cat.popScale = 1.0;
+              cat.hasPopped = true;
+              cat.isPopping = false;
+              cat.currentScale = 1.0;
+            } else {
+              cat.currentScale = Math.max(0, cat.popScale);
+            }
+          } else {
+            cat.currentScale = 0;
+          }
+        } else {
+          // Smooth scale interpolation for hover & drag
+          const targetScale = cat.isDragging ? 1.35 : (cat.isHovered ? 1.25 : 1.0);
+          cat.currentScale += (targetScale - cat.currentScale) * 0.2;
+        }
       }
 
       // 5. Sparks Lifecycle
@@ -748,7 +799,8 @@ export default function FloatingCatCanvas({ paused = false }) {
 
       // 3. Draw Cats
       for (const cat of cats) {
-        if (!cat.img.complete || cat.img.naturalWidth === 0) continue;
+        if (!cat.img || !cat.img.complete || cat.img.naturalWidth === 0) continue;
+        if (cat.currentScale <= 0.01) continue;
 
         ctx.save();
         ctx.translate(cat.x, cat.y);

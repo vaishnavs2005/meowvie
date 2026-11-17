@@ -54,6 +54,7 @@ export default function AppPreloader({ onReady, onLoaded }) {
         `,
         backgroundSize: '24px 24px, 48px 48px',
         backgroundPosition: '0 0, 12px 12px',
+        animation: 'moveDotsBody 4.2s linear infinite',
         opacity: isFadingOut ? 0 : 1,
         transform: isFadingOut ? 'scale(1.015)' : 'scale(1)',
         pointerEvents: isFadingOut ? 'none' : 'auto',

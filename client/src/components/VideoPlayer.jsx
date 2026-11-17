@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import FloatingReactions from './FloatingReactions';
 import FullscreenChatOverlay from './FullscreenChatOverlay';
+import ProjectorStartupOverlay from './ProjectorStartupOverlay';
 import { generateSampleMovieBlob } from '../services/sampleVideoGenerator';
 import { parseMkvMetadata } from '../services/mkvParser';
 
@@ -82,6 +83,28 @@ export default function VideoPlayer({
   const [ambientGlow, setAmbientGlow] = useState(true);
   const [isGeneratingDemo, setIsGeneratingDemo] = useState(false);
   const [videoError, setVideoError] = useState(null);
+
+  // Cinema Projector Startup Animation state (triggers when movie loads)
+  const [showProjectorStartup, setShowProjectorStartup] = useState(false);
+  const [projectorAnimKey, setProjectorAnimKey] = useState(0);
+  const isProjectorActiveRef = useRef(false);
+  const lastProjectorTriggerTimeRef = useRef(0);
+
+  const triggerProjectorStartup = useCallback(() => {
+    // Guard: strictly ensure only one countdown/projector sequence runs at a time
+    if (isProjectorActiveRef.current) {
+      return;
+    }
+    isProjectorActiveRef.current = true;
+    lastProjectorTriggerTimeRef.current = Date.now();
+    setShowProjectorStartup(true);
+    setProjectorAnimKey((k) => k + 1);
+  }, []);
+
+  const handleProjectorComplete = useCallback(() => {
+    isProjectorActiveRef.current = false;
+    setShowProjectorStartup(false);
+  }, []);
 
   // Volume OSD overlay state
   const [showVolumePopup, setShowVolumePopup] = useState(false);
@@ -244,6 +267,9 @@ export default function VideoPlayer({
     setVideoName(file.name);
     setIsPlaying(false);
 
+    // Trigger Cinema Projector Startup Animation (guarded single run)
+    triggerProjectorStartup();
+
     // Briefly show title and controls for 3.5s upon loading, then auto-hide
     setIsTopBarHovered(true);
     setIsBottomBarHovered(true);
@@ -307,6 +333,9 @@ export default function VideoPlayer({
       setVideoName(sample.name);
       setDuration(sample.duration);
       setIsPlaying(false);
+
+      // Trigger Cinema Projector Startup Animation (guarded single run)
+      triggerProjectorStartup();
 
       if (onShowToast) onShowToast('Cinema test reel ready! Press play to test sync.');
     } catch (err) {
@@ -870,6 +899,16 @@ export default function VideoPlayer({
               )}
             </div>
           </div>
+        )}
+
+        {/* Cinema Projector Startup Animation (Triggered when movie is loaded) */}
+        {showProjectorStartup && videoSrc && (
+          <ProjectorStartupOverlay
+            key={projectorAnimKey}
+            movieTitle={videoName}
+            duration={duration || videoRef.current?.duration || sampleDurationRef.current || 0}
+            onComplete={handleProjectorComplete}
+          />
         )}
 
         {/* Top Header Bar inside Video Player - Only pops up when arrow is placed at the extreme top */}
